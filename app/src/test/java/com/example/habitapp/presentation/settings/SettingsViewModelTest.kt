@@ -59,7 +59,9 @@ class SettingsViewModelTest {
 
             // Name update and confirmation message may arrive as separate emissions.
             var ready = awaitItem() as SettingsUiState.Ready
-            if (ready.userMessage == null) ready = awaitItem() as SettingsUiState.Ready
+            while (ready.preferences.displayName != "Ana" || ready.userMessage == null) {
+                ready = awaitItem() as SettingsUiState.Ready
+            }
             assertEquals("Ana", ready.preferences.displayName)
             assertEquals(R.string.settings_saved, ready.userMessage)
 
