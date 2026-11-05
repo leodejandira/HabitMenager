@@ -7,7 +7,6 @@ import com.example.habitapp.data.local.entity.TaskCompletionEntity
 import com.example.habitapp.data.local.entity.TaskExceptionEntity
 import com.example.habitapp.data.local.entity.TaskListEntity
 import com.example.habitapp.domain.model.EditScope
-import com.example.habitapp.domain.model.RecurrenceType
 import com.example.habitapp.domain.model.Task
 import com.example.habitapp.domain.model.TaskList
 import com.example.habitapp.domain.model.TaskRecurrence
@@ -71,20 +70,9 @@ class TaskRepositoryImpl @Inject constructor(
         when (scope) {
             EditScope.ALL -> saveTask(updated)
             EditScope.THIS_OCCURRENCE -> {
-                // Detach the occurrence: exclude it from the series and create a one-off task.
-                val detached = updated.copy(
-                    id = UUID.randomUUID().toString(),
-                    recurrence = TaskRecurrence(),
-                    dueDate = updated.dueDate ?: occurrenceDate,
-                    completedAt = null,
-                    createdAt = time.nowInstant(),
-                )
-                db.withTransaction {
-                    dao.insertException(TaskExceptionEntity(original.id, occurrenceDate.toEpochDay()))
-                    dao.deleteCompletion(original.id, occurrenceDate.toEpochDay())
-                    dao.upsertTask(detached.toEntity(now))
-                }
-                reminderScheduler.rescheduleTask(detached.id)
+                // The editor shows the series' anchor date; an unchanged date means "keep this occurrence's day".
+                val newDate = if (updated.dueDate == original.dueDate) occurrenceDate else updated.dueDate ?: occurrenceDate
+                detachOccurrence(original, updated, occurrenceDate, newDate)
             }
             EditScope.THIS_AND_FUTURE -> {
                 if (occurrenceDate == original.dueDate) {
@@ -110,6 +98,25 @@ class TaskRepositoryImpl @Inject constructor(
                 reminderScheduler.rescheduleTask(newSeries.id)
             }
         }
+    }
+
+    /** Removes one occurrence from its series and recreates it as a one-off task on [newDate]. */
+    private suspend fun detachOccurrence(original: Task, updated: Task, occurrenceDate: LocalDate, newDate: LocalDate) {
+        val now = time.nowInstant().toEpochMilli()
+        val wasCompleted = dao.getAllCompletions().any { it.taskId == original.id && it.occurrenceDate == occurrenceDate.toEpochDay() }
+        val detached = updated.copy(
+            id = UUID.randomUUID().toString(),
+            recurrence = TaskRecurrence(),
+            dueDate = newDate,
+            completedAt = if (wasCompleted) time.nowInstant() else null,
+            createdAt = time.nowInstant(),
+        )
+        db.withTransaction {
+            dao.insertException(TaskExceptionEntity(original.id, occurrenceDate.toEpochDay()))
+            dao.deleteCompletion(original.id, occurrenceDate.toEpochDay())
+            dao.upsertTask(detached.toEntity(now))
+        }
+        reminderScheduler.rescheduleTask(detached.id)
     }
 
     override suspend fun setOccurrenceCompleted(taskId: String, occurrenceDate: LocalDate?, completed: Boolean) {
@@ -158,7 +165,7 @@ class TaskRepositoryImpl @Inject constructor(
             val exceptions = dao.getAllExceptions().filter { it.taskId == taskId }
                 .map { LocalDate.ofEpochDay(it.occurrenceDate) }.toSet()
             if (!TaskRecurrenceCalculator.occursOn(task, fromDate, exceptions)) return
-            updateRecurringTask(task.copy(dueDate = toDate), fromDate, EditScope.THIS_OCCURRENCE)
+            detachOccurrence(task, task, fromDate, toDate)
         } else {
             saveTask(task.copy(dueDate = toDate))
         }
@@ -191,15 +198,5 @@ class TaskRepositoryImpl @Inject constructor(
     override suspend fun moveTask(taskId: String, listId: String) {
         val task = dao.getTask(taskId) ?: return
         dao.upsertTask(task.copy(listId = listId, updatedAt = time.nowInstant().toEpochMilli()))
-    }
-
-    companion object {
-        /** Convenience used by the editor: series without explicit weekdays repeat on the anchor's weekday. */
-        fun defaultWeekdays(task: Task): TaskRecurrence =
-            if (task.recurrence.type == RecurrenceType.WEEKDAYS && task.recurrence.weekdays.isEmpty()) {
-                task.recurrence.copy(weekdays = setOfNotNull(task.dueDate?.dayOfWeek))
-            } else {
-                task.recurrence
-            }
     }
 }

@@ -358,3 +358,50 @@ format_underline | Underline | Sublinhado
 format_heading | Heading | Título
 format_bullets | Bulleted list | Lista com marcadores
 format_numbered | Numbered list | Lista numerada
+dashboard_hidden_completed | %1$d completed habits hidden (change in Settings) | %1$d hábitos concluídos ocultos (altere em Configurações)
+backup_error_format | This file is not a Steady backup. | Este arquivo não é um backup do Steady.
+backup_error_version | This backup was made by a newer version of the app. | Este backup foi feito por uma versão mais nova do app.
+backup_error_integrity | The backup is damaged or incomplete. Nothing was changed. | O backup está danificado ou incompleto. Nada foi alterado.
+settings_section_display | Today screen | Tela Hoje
+settings_hide_completed | Hide completed habits | Ocultar hábitos concluídos
+settings_hide_completed_summary | Keeps the list short; they still count toward progress | Mantém a lista curta; eles continuam contando no progresso
+settings_show_overdue | Show overdue tasks | Mostrar tarefas atrasadas
+settings_show_overdue_summary | List unfinished tasks from previous days on Today | Lista tarefas não concluídas de dias anteriores em Hoje
+settings_default_calendar_view | Default calendar view | Visualização padrão do calendário
+settings_formats_info | Date and time formats (12/24-hour) follow your device's language and region settings. | Os formatos de data e hora (12/24 horas) seguem o idioma e a região do aparelho.
+settings_section_notifications | Notifications | Notificações
+settings_notifications_on | Notifications are allowed. | As notificações estão permitidas.
+settings_notifications_off | Notifications are turned off — reminders will not appear. | As notificações estão desativadas — os lembretes não aparecerão.
+settings_allow_notifications | Allow notifications | Permitir notificações
+settings_open_notification_settings | Notification settings | Configurações de notificação
+settings_exact_on | Exact reminder times are allowed. | Horários exatos de lembrete estão permitidos.
+settings_exact_off | Exact alarms are not allowed, so reminders may arrive up to ~10 minutes late. | Alarmes exatos não estão permitidos, então os lembretes podem chegar até ~10 minutos atrasados.
+settings_allow_exact | Allow exact alarms | Permitir alarmes exatos
+settings_reminder_note | Android may delay reminders when battery saver or app restrictions are active. | O Android pode atrasar lembretes quando a economia de bateria ou restrições do app estão ativas.
+settings_section_language | Language | Idioma
+settings_language_summary | Choose the app language in Android's app settings (English or Português). | Escolha o idioma do app nas configurações do Android (English ou Português).
+settings_choose_language | Choose language | Escolher idioma
+settings_language_device | The app follows your device language (English or Português). | O app segue o idioma do aparelho (English ou Português).
+settings_section_data | Data | Dados
+settings_backup_summary | Everything is stored only on this device. Export a backup file to keep it safe or move it to another phone. | Tudo fica salvo apenas neste aparelho. Exporte um arquivo de backup para guardá-lo ou levá-lo a outro celular.
+settings_export | Export backup | Exportar backup
+settings_import | Restore backup | Restaurar backup
+settings_reset | Reset all data | Apagar todos os dados
+import_confirm_title | Restore this backup? | Restaurar este backup?
+import_confirm_message | All current habits, tasks and journal entries will be replaced by the backup. The file is checked first; if it is invalid nothing changes. | Todos os hábitos, tarefas e anotações atuais serão substituídos pelo backup. O arquivo é verificado antes; se for inválido, nada muda.
+reset_confirm_title | Delete everything? | Apagar tudo?
+reset_confirm_message | All habits, history, tasks, routines and journal entries will be permanently deleted. Export a backup first if you might need them. | Todos os hábitos, histórico, tarefas, rotinas e anotações serão apagados permanentemente. Exporte um backup antes se puder precisar deles.
+reset_done | All data was deleted. | Todos os dados foram apagados.
+backup_exported | Backup saved: %1$d habits, %2$d tasks, %3$d journal entries | Backup salvo: %1$d hábitos, %2$d tarefas, %3$d anotações
+backup_imported | Backup restored: %1$d habits, %2$d tasks, %3$d journal entries | Backup restaurado: %1$d hábitos, %2$d tarefas, %3$d anotações
+backup_error_io | Couldn't read or write the file. Nothing was changed. | Não foi possível ler ou gravar o arquivo. Nada foi alterado.
+settings_about_text | Steady keeps your habits, tasks and journal private and offline. No account needed. | O Steady mantém seus hábitos, tarefas e diário privados e offline. Sem necessidade de conta.
+widget_today_title | Today's habits | Hábitos de hoje
+widget_today_desc | Your habits for today. Tap a habit to mark it done or add one step. | Seus hábitos de hoje. Toque em um hábito para concluir ou somar um incremento.
+widget_progress_title | Today's progress | Progresso de hoje
+widget_progress_desc | Daily completion of habits and tasks. | Conclusão diária de hábitos e tarefas.
+widget_summary_title | Weekly summary | Resumo semanal
+widget_summary_desc | Last 7 days completion rate and best streak. | Taxa de conclusão dos últimos 7 dias e melhor sequência.
+widget_completions_week | Completions (7 days) | Conclusões (7 dias)
+widget_no_habits | No habits scheduled today. Tap to open the app. | Nenhum hábito para hoje. Toque para abrir o app.
+widget_error | Couldn't load data. | Não foi possível carregar os dados.

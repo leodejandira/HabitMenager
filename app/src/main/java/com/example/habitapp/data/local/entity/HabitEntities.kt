@@ -5,9 +5,11 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 // Dates (calendar days) are stored as epoch days; instants as UTC epoch millis.
 
+@Serializable
 @Entity(
     tableName = "habit_groups",
     indices = [Index("sortOrder")],
@@ -20,6 +22,7 @@ data class HabitGroupEntity(
     val createdAt: Long,
 )
 
+@Serializable
 @Entity(
     tableName = "habits",
     foreignKeys = [
@@ -57,6 +60,7 @@ data class HabitEntity(
     val updatedAt: Long,
 )
 
+@Serializable
 @Entity(
     tableName = "habit_activities",
     foreignKeys = [
@@ -85,6 +89,7 @@ data class HabitActivityEntity(
     val zoneId: String,
 )
 
+@Serializable
 @Entity(
     tableName = "habit_reminders",
     foreignKeys = [
@@ -106,6 +111,7 @@ data class HabitReminderEntity(
     val enabled: Boolean,
 )
 
+@Serializable
 @Entity(tableName = "routines")
 data class RoutineEntity(
     @PrimaryKey val id: String,
@@ -116,6 +122,7 @@ data class RoutineEntity(
     val createdAt: Long,
 )
 
+@Serializable
 @Entity(
     tableName = "routine_habits",
     primaryKeys = ["routineId", "habitId"],
@@ -141,6 +148,7 @@ data class RoutineHabitCrossRef(
     val position: Int,
 )
 
+@Serializable
 @Entity(
     tableName = "timer_sessions",
     foreignKeys = [

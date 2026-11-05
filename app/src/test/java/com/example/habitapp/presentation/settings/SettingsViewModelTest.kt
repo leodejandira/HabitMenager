@@ -4,6 +4,9 @@ import app.cash.turbine.test
 import com.example.habitapp.R
 import com.example.habitapp.domain.model.ThemeMode
 import com.example.habitapp.domain.model.UserPreferences
+import com.example.habitapp.domain.repository.DataManagementRepository
+import com.example.habitapp.domain.repository.DataSummary
+import com.example.habitapp.domain.repository.InvalidBackupException
 import com.example.habitapp.testing.FakeUserPreferencesRepository
 import com.example.habitapp.testing.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
@@ -19,7 +22,8 @@ class SettingsViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val repository = FakeUserPreferencesRepository()
-    private val viewModel = SettingsViewModel(repository)
+    private val dataManagement = FakeDataManagement()
+    private val viewModel = SettingsViewModel(repository, dataManagement)
 
     @Test
     fun `starts loading then emits stored preferences`() = runTest {
@@ -63,7 +67,7 @@ class SettingsViewModelTest {
                 ready = awaitItem() as SettingsUiState.Ready
             }
             assertEquals("Ana", ready.preferences.displayName)
-            assertEquals(R.string.settings_saved, ready.userMessage)
+            assertEquals(R.string.settings_saved, ready.userMessage?.res)
 
             viewModel.onUserMessageShown()
             assertNull((awaitItem() as SettingsUiState.Ready).userMessage)
@@ -78,9 +82,48 @@ class SettingsViewModelTest {
             viewModel.onThemeModeSelected(ThemeMode.LIGHT)
 
             val ready = awaitItem() as SettingsUiState.Ready
-            assertEquals(R.string.settings_error_save, ready.userMessage)
+            assertEquals(R.string.settings_error_save, ready.userMessage?.res)
             assertEquals(ThemeMode.SYSTEM, ready.preferences.themeMode)
         }
+    }
+
+    @Test
+    fun `invalid backup reports the reason and nothing else changes`() = runTest {
+        dataManagement.importError = InvalidBackupException(InvalidBackupException.Reason.INTEGRITY)
+        viewModel.uiState.test {
+            skipUntilReady()
+            viewModel.onImport("content://backup.json")
+            var ready = awaitItem() as SettingsUiState.Ready
+            while (ready.userMessage == null) ready = awaitItem() as SettingsUiState.Ready
+            assertEquals(R.string.backup_error_integrity, ready.userMessage?.res)
+            assertEquals(0, dataManagement.restores)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `successful export reports counts`() = runTest {
+        viewModel.uiState.test {
+            skipUntilReady()
+            viewModel.onExport("content://out.json")
+            var ready = awaitItem() as SettingsUiState.Ready
+            while (ready.userMessage == null) ready = awaitItem() as SettingsUiState.Ready
+            assertEquals(R.string.backup_exported, ready.userMessage?.res)
+            assertEquals(listOf<Any>(2, 3, 4), ready.userMessage?.args)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    private class FakeDataManagement : DataManagementRepository {
+        var importError: Exception? = null
+        var restores = 0
+        override suspend fun exportTo(uri: String) = DataSummary(2, 10, 3, 4)
+        override suspend fun importFrom(uri: String): DataSummary {
+            importError?.let { throw it }
+            restores++
+            return DataSummary(1, 1, 1, 1)
+        }
+        override suspend fun resetAll() = Unit
     }
 
     private suspend fun app.cash.turbine.ReceiveTurbine<SettingsUiState>.skipUntilReady() {

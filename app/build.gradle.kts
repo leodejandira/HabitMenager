@@ -17,8 +17,8 @@ android {
         applicationId = "com.example.habitapp"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -65,7 +65,8 @@ android {
             // Robolectric downloads its Android runtime jars; use the Google-hosted Maven Central mirror.
             it.systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2")
             it.systemProperty("robolectric.dependency.repo.id", "google-maven-central")
-            it.maxHeapSize = "3g"
+            it.maxHeapSize = "2g"
+            System.getProperty("steady.screenshots")?.let { dir -> it.systemProperty("steady.screenshots", dir) }
         }
     }
 

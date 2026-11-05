@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -68,13 +69,23 @@ class CalendarViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
     private val journalRepository: JournalRepository,
     private val habitRepo: HabitRepository,
-    preferences: UserPreferencesRepository,
+    private val preferences: UserPreferencesRepository,
     private val buildOverview: BuildDayOverviewUseCase,
     private val time: TimeProvider,
 ) : ViewModel() {
 
     private val selectedDay = savedStateHandle.getStateFlow(KEY_SELECTED, time.today().toEpochDay())
     private val mode = savedStateHandle.getStateFlow(KEY_MODE, CalendarMode.MONTH.name)
+
+    init {
+        // First visit: open in the view chosen in Settings.
+        if (!savedStateHandle.contains(KEY_MODE)) {
+            viewModelScope.launch {
+                val preferred = preferences.preferences.first().defaultCalendarView
+                if (!savedStateHandle.contains(KEY_MODE)) savedStateHandle[KEY_MODE] = preferred.name
+            }
+        }
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val journalDays = selectedDay.flatMapLatest { day ->

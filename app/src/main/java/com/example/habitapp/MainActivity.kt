@@ -1,6 +1,7 @@
 package com.example.habitapp
 
 import android.graphics.Color
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -13,11 +14,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.habitapp.domain.model.ThemeMode
 import com.example.habitapp.presentation.MainUiState
 import com.example.habitapp.presentation.MainViewModel
+import com.example.habitapp.presentation.navigation.DeepLink
 import com.example.habitapp.presentation.navigation.HabitApp
 import com.example.habitapp.presentation.theme.HabitTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,9 +31,13 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
+    /** Destination requested by a notification tap, consumed once by the navigation host. */
+    private var deepLink by mutableStateOf<DeepLink?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        if (savedInstanceState == null) deepLink = DeepLink.from(intent)
 
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -50,11 +58,17 @@ class MainActivity : ComponentActivity() {
                     // Preferences load from disk in a few milliseconds; drawing the app only
                     // afterwards avoids a flash of the wrong theme.
                     if (uiState is MainUiState.Ready) {
-                        HabitApp()
+                        HabitApp(deepLink = deepLink, onDeepLinkHandled = { deepLink = null })
                     }
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        DeepLink.from(intent)?.let { deepLink = it }
     }
 
     private companion object {

@@ -48,6 +48,42 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".widgets.TodayHabitsWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_today_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_today_habits" />
+        </receiver>
+
+        <receiver
+            android:name=".widgets.DailyProgressWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_progress_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_daily_progress" />
+        </receiver>
+
+        <receiver
+            android:name=".widgets.HabitSummaryWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_summary_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_habit_summary" />
+        </receiver>
+
         <!-- WorkManager is initialised on demand with the Hilt worker factory
              (see HabitApplication), so the default initializer is removed. -->
         <provider

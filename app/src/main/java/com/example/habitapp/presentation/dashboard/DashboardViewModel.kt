@@ -48,6 +48,9 @@ sealed interface DashboardUiState {
         val overview: DayOverview,
         val routines: List<RoutineProgress>,
         val hasAnyHabit: Boolean,
+        val hiddenCompleted: Int,
+        /** Unfiltered overview, used for progress numbers. */
+        val fullOverview: DayOverview,
     ) : DashboardUiState
 
     data object Error : DashboardUiState
@@ -88,7 +91,12 @@ class DashboardViewModel @Inject constructor(
                 displayName = preferences.displayName,
             ),
             today = now.toLocalDate(),
-            overview = overview,
+            overview = overview.copy(
+                habits = if (preferences.hideCompletedHabits) overview.habits.filter { !it.progress.completed } else overview.habits,
+                overdueTasks = if (preferences.showOverdueOnToday) overview.overdueTasks else emptyList(),
+            ),
+            hiddenCompleted = if (preferences.hideCompletedHabits) overview.habits.count { it.progress.completed } else 0,
+            fullOverview = overview,
             routines = routines.mapNotNull { routine ->
                 val steps = routine.habitIds.mapNotNull { habitItems[it] }
                 if (steps.isEmpty()) null else RoutineProgress(routine, steps.count { it.progress.completed }, steps.size)

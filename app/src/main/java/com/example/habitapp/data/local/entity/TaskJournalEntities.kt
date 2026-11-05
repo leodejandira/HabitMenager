@@ -4,7 +4,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(
     tableName = "task_lists",
     indices = [Index("sortOrder")],
@@ -20,6 +22,7 @@ data class TaskListEntity(
     val createdAt: Long,
 )
 
+@Serializable
 @Entity(
     tableName = "tasks",
     foreignKeys = [
@@ -56,6 +59,7 @@ data class TaskEntity(
 )
 
 /** Completion of one occurrence of a recurring task. */
+@Serializable
 @Entity(
     tableName = "task_completions",
     primaryKeys = ["taskId", "occurrenceDate"],
@@ -76,6 +80,7 @@ data class TaskCompletionEntity(
 )
 
 /** An occurrence removed from a recurring series (deleted or moved to its own task). */
+@Serializable
 @Entity(
     tableName = "task_exceptions",
     primaryKeys = ["taskId", "occurrenceDate"],
@@ -93,6 +98,7 @@ data class TaskExceptionEntity(
     val occurrenceDate: Long,
 )
 
+@Serializable
 @Entity(
     tableName = "journal_entries",
     foreignKeys = [

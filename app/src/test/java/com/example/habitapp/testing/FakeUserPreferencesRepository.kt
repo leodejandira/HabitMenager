@@ -1,5 +1,6 @@
 package com.example.habitapp.testing
 
+import com.example.habitapp.domain.model.CalendarView
 import com.example.habitapp.domain.model.ThemeMode
 import com.example.habitapp.domain.model.UserPreferences
 import com.example.habitapp.domain.repository.UserPreferencesRepository
@@ -27,6 +28,12 @@ class FakeUserPreferencesRepository(
 
     override suspend fun setDisplayName(name: String) =
         write { it.copy(displayName = name.trim().take(UserPreferences.MAX_DISPLAY_NAME_LENGTH)) }
+
+    override suspend fun setDefaultCalendarView(view: CalendarView) = write { it.copy(defaultCalendarView = view) }
+
+    override suspend fun setHideCompletedHabits(hide: Boolean) = write { it.copy(hideCompletedHabits = hide) }
+
+    override suspend fun setShowOverdueOnToday(show: Boolean) = write { it.copy(showOverdueOnToday = show) }
 
     private fun write(transform: (UserPreferences) -> UserPreferences) {
         if (failWrites) throw IOException("Simulated write failure")

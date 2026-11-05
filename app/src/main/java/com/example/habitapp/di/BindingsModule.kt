@@ -1,5 +1,6 @@
 package com.example.habitapp.di
 
+import com.example.habitapp.data.backup.BackupManager
 import com.example.habitapp.data.preferences.DataStoreUserPreferencesRepository
 import com.example.habitapp.data.repository.HabitRepositoryImpl
 import com.example.habitapp.data.repository.JournalRepositoryImpl
@@ -7,6 +8,7 @@ import com.example.habitapp.data.repository.RoutineRepositoryImpl
 import com.example.habitapp.data.repository.TaskRepositoryImpl
 import com.example.habitapp.data.repository.TimerRepositoryImpl
 import com.example.habitapp.data.scheduler.AlarmReminderScheduler
+import com.example.habitapp.domain.repository.DataManagementRepository
 import com.example.habitapp.domain.repository.HabitRepository
 import com.example.habitapp.domain.repository.JournalRepository
 import com.example.habitapp.domain.repository.ReminderScheduler
@@ -59,4 +61,8 @@ abstract class BindingsModule {
     @Binds
     @Singleton
     abstract fun bindReminderScheduler(impl: AlarmReminderScheduler): ReminderScheduler
+
+    @Binds
+    @Singleton
+    abstract fun bindDataManagement(impl: BackupManager): DataManagementRepository
 }

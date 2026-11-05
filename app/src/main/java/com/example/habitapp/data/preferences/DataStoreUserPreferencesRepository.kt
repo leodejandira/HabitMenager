@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.example.habitapp.domain.model.CalendarView
 import com.example.habitapp.domain.model.ThemeMode
 import com.example.habitapp.domain.model.UserPreferences
 import com.example.habitapp.domain.repository.UserPreferencesRepository
@@ -55,6 +56,18 @@ class DataStoreUserPreferencesRepository @Inject constructor(
         dataStore.edit { it[Keys.DISPLAY_NAME] = sanitized }
     }
 
+    override suspend fun setDefaultCalendarView(view: CalendarView) {
+        dataStore.edit { it[Keys.CALENDAR_VIEW] = view.name }
+    }
+
+    override suspend fun setHideCompletedHabits(hide: Boolean) {
+        dataStore.edit { it[Keys.HIDE_COMPLETED] = hide }
+    }
+
+    override suspend fun setShowOverdueOnToday(show: Boolean) {
+        dataStore.edit { it[Keys.SHOW_OVERDUE] = show }
+    }
+
     private fun Preferences.toUserPreferences(): UserPreferences = UserPreferences(
         themeMode = this[Keys.THEME_MODE]
             ?.let { stored -> ThemeMode.entries.firstOrNull { it.name == stored } }
@@ -64,6 +77,11 @@ class DataStoreUserPreferencesRepository @Inject constructor(
             ?.takeIf { it in 1..7 }
             ?.let(DayOfWeek::of),
         displayName = this[Keys.DISPLAY_NAME].orEmpty(),
+        defaultCalendarView = this[Keys.CALENDAR_VIEW]
+            ?.let { stored -> CalendarView.entries.firstOrNull { it.name == stored } }
+            ?: CalendarView.MONTH,
+        hideCompletedHabits = this[Keys.HIDE_COMPLETED] ?: false,
+        showOverdueOnToday = this[Keys.SHOW_OVERDUE] ?: true,
     )
 
     private object Keys {
@@ -71,6 +89,9 @@ class DataStoreUserPreferencesRepository @Inject constructor(
         val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
         val FIRST_DAY_OF_WEEK = intPreferencesKey("first_day_of_week")
         val DISPLAY_NAME = stringPreferencesKey("display_name")
+        val CALENDAR_VIEW = stringPreferencesKey("default_calendar_view")
+        val HIDE_COMPLETED = booleanPreferencesKey("hide_completed_habits")
+        val SHOW_OVERDUE = booleanPreferencesKey("show_overdue_today")
     }
 
     private companion object {

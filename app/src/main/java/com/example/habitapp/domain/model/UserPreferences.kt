@@ -4,6 +4,8 @@ import java.time.DayOfWeek
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
+enum class CalendarView { MONTH, WEEK, DAY }
+
 /**
  * App-wide user preferences persisted with DataStore.
  *
@@ -15,6 +17,10 @@ data class UserPreferences(
     val useDynamicColor: Boolean = false,
     val firstDayOfWeek: DayOfWeek? = null,
     val displayName: String = "",
+    val defaultCalendarView: CalendarView = CalendarView.MONTH,
+    /** Hide habits already completed from the Today list (they still count toward progress). */
+    val hideCompletedHabits: Boolean = false,
+    val showOverdueOnToday: Boolean = true,
 ) {
     companion object {
         const val MAX_DISPLAY_NAME_LENGTH = 40

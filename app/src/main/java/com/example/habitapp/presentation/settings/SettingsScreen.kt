@@ -49,6 +49,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.habitapp.BuildConfig
 import com.example.habitapp.R
+import com.example.habitapp.domain.model.CalendarView
 import com.example.habitapp.domain.model.ThemeMode
 import com.example.habitapp.domain.model.UserPreferences
 import com.example.habitapp.domain.util.resolveFirstDayOfWeek
@@ -76,6 +77,12 @@ fun SettingsScreen(
             onFirstDayOfWeekSelected = viewModel::onFirstDayOfWeekSelected,
             onDisplayNameSaved = viewModel::onDisplayNameSaved,
             onUserMessageShown = viewModel::onUserMessageShown,
+            onCalendarViewSelected = viewModel::onCalendarViewSelected,
+            onHideCompletedToggled = viewModel::onHideCompletedToggled,
+            onShowOverdueToggled = viewModel::onShowOverdueToggled,
+            onExport = viewModel::onExport,
+            onImport = viewModel::onImport,
+            onReset = viewModel::onReset,
         ),
     )
 }
@@ -87,6 +94,12 @@ class SettingsActions(
     val onFirstDayOfWeekSelected: (DayOfWeek?) -> Unit,
     val onDisplayNameSaved: (String) -> Unit,
     val onUserMessageShown: () -> Unit,
+    val onCalendarViewSelected: (CalendarView) -> Unit = {},
+    val onHideCompletedToggled: (Boolean) -> Unit = {},
+    val onShowOverdueToggled: (Boolean) -> Unit = {},
+    val onExport: (String) -> Unit = {},
+    val onImport: (String) -> Unit = {},
+    val onReset: () -> Unit = {},
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,7 +111,7 @@ fun SettingsContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val messageRes = (uiState as? SettingsUiState.Ready)?.userMessage
-    val messageText = messageRes?.let { stringResource(it) }
+    val messageText = messageRes?.let { stringResource(it.res, *it.args.toTypedArray()) }
     LaunchedEffect(messageRes) {
         if (messageText != null) {
             snackbarHostState.showSnackbar(messageText)
@@ -131,6 +144,7 @@ fun SettingsContent(
             )
             is SettingsUiState.Ready -> SettingsList(
                 preferences = uiState.preferences,
+                busy = uiState.busy,
                 contentPadding = innerPadding,
                 actions = actions,
             )
@@ -141,6 +155,7 @@ fun SettingsContent(
 @Composable
 private fun SettingsList(
     preferences: UserPreferences,
+    busy: Boolean,
     contentPadding: PaddingValues,
     actions: SettingsActions,
 ) {
@@ -165,12 +180,45 @@ private fun SettingsList(
             }
             HorizontalDivider(Modifier.padding(vertical = spacing.sm))
         }
+        item(key = "display") {
+            SectionHeader(stringResource(R.string.settings_section_display))
+            SwitchRow(
+                title = stringResource(R.string.settings_hide_completed),
+                summary = stringResource(R.string.settings_hide_completed_summary),
+                checked = preferences.hideCompletedHabits,
+                onCheckedChange = actions.onHideCompletedToggled,
+            )
+            SwitchRow(
+                title = stringResource(R.string.settings_show_overdue),
+                summary = stringResource(R.string.settings_show_overdue_summary),
+                checked = preferences.showOverdueOnToday,
+                onCheckedChange = actions.onShowOverdueToggled,
+            )
+            HorizontalDivider(Modifier.padding(vertical = spacing.sm))
+        }
         item(key = "calendar") {
             SectionHeader(stringResource(R.string.settings_section_calendar))
+            CalendarViewSelector(preferences.defaultCalendarView, actions.onCalendarViewSelected)
             WeekStartSelector(
                 selected = preferences.firstDayOfWeek,
                 onSelected = actions.onFirstDayOfWeekSelected,
             )
+            InfoText(stringResource(R.string.settings_formats_info))
+            HorizontalDivider(Modifier.padding(vertical = spacing.sm))
+        }
+        item(key = "notifications") {
+            SectionHeader(stringResource(R.string.settings_section_notifications))
+            NotificationSettings()
+            HorizontalDivider(Modifier.padding(vertical = spacing.sm))
+        }
+        item(key = "language") {
+            SectionHeader(stringResource(R.string.settings_section_language))
+            LanguageSettings()
+            HorizontalDivider(Modifier.padding(vertical = spacing.sm))
+        }
+        item(key = "data") {
+            SectionHeader(stringResource(R.string.settings_section_data))
+            DataSettings(busy = busy, actions = actions)
             HorizontalDivider(Modifier.padding(vertical = spacing.sm))
         }
         item(key = "profile") {
@@ -183,6 +231,7 @@ private fun SettingsList(
         }
         item(key = "about") {
             SectionHeader(stringResource(R.string.settings_section_about))
+            InfoText(stringResource(R.string.settings_about_text))
             Text(
                 text = stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.bodyMedium,

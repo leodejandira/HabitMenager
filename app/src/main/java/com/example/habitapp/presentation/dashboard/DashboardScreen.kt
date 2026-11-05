@@ -174,7 +174,7 @@ private fun DashboardReady(
                 onToday = viewModel::goToToday,
             )
         }
-        if (!overview.isEmpty) {
+        if (!state.fullOverview.isEmpty) {
             item(key = "progress") { ProgressCard(state, onStatistics = navigation.onStatistics) }
         }
         if (state.routines.isNotEmpty()) {
@@ -199,6 +199,16 @@ private fun DashboardReady(
                     modifier = Modifier
                         .padding(horizontal = spacing.screenHorizontal, vertical = spacing.xs)
                         .animateItem(),
+                )
+            }
+        }
+        if (state.hiddenCompleted > 0) {
+            item(key = "hiddenCompleted") {
+                Text(
+                    stringResource(R.string.dashboard_hidden_completed, state.hiddenCompleted),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = spacing.screenHorizontal, vertical = spacing.xs),
                 )
             }
         }
@@ -229,7 +239,7 @@ private fun DashboardReady(
                 )
             }
         }
-        if (overview.isEmpty) {
+        if (state.fullOverview.isEmpty) {
             item(key = "empty") {
                 Card(
                     modifier = Modifier
@@ -260,7 +270,7 @@ private fun DashboardReady(
 @Composable
 private fun ProgressCard(state: DashboardUiState.Ready, onStatistics: () -> Unit) {
     val spacing = HabitTheme.spacing
-    val overview = state.overview
+    val overview = state.fullOverview
     val percent = (overview.fraction * 100).toInt()
     Card(
         onClick = onStatistics,

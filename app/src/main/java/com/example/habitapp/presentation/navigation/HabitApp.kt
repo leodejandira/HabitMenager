@@ -14,7 +14,9 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import android.content.Intent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -25,10 +27,38 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.habitapp.data.scheduler.Notifications
+
+/** A destination opened from outside the app (notification taps). */
+sealed interface DeepLink {
+    data class Habit(val habitId: String) : DeepLink
+    data object Tasks : DeepLink
+
+    companion object {
+        fun from(intent: Intent?): DeepLink? {
+            intent ?: return null
+            intent.getStringExtra(Notifications.EXTRA_OPEN_HABIT)?.let { return Habit(it) }
+            if (intent.getBooleanExtra(Notifications.EXTRA_OPEN_TASKS, false)) return Tasks
+            return null
+        }
+    }
+}
 
 /** Root composable: bottom navigation for top-level tabs plus the navigation host. */
 @Composable
-fun HabitApp(navController: NavHostController = rememberNavController()) {
+fun HabitApp(
+    navController: NavHostController = rememberNavController(),
+    deepLink: DeepLink? = null,
+    onDeepLinkHandled: () -> Unit = {},
+) {
+    LaunchedEffect(deepLink) {
+        when (deepLink) {
+            is DeepLink.Habit -> navController.navigate(HabitDetailRoute(deepLink.habitId)) { launchSingleTop = true }
+            DeepLink.Tasks -> navController.navigateToTopLevel(TopLevelDestination.TASKS)
+            null -> return@LaunchedEffect
+        }
+        onDeepLinkHandled()
+    }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
     val showBottomBar = currentDestination == null ||

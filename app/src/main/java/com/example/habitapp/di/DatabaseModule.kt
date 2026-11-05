@@ -2,6 +2,7 @@ package com.example.habitapp.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.habitapp.data.local.dao.BackupDao
 import com.example.habitapp.data.local.dao.HabitDao
 import com.example.habitapp.data.local.dao.JournalDao
 import com.example.habitapp.data.local.dao.TaskDao
@@ -31,6 +32,9 @@ object DatabaseModule {
 
     @Provides
     fun provideTaskDao(db: AppDatabase): TaskDao = db.taskDao()
+
+    @Provides
+    fun provideBackupDao(db: AppDatabase): BackupDao = db.backupDao()
 
     @Provides
     fun provideJournalDao(db: AppDatabase): JournalDao = db.journalDao()
