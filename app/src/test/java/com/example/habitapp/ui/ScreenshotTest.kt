@@ -104,4 +104,17 @@ class ScreenshotTest {
         waitForTag("journal_title_field")
         shot("08_journal_editor")
     }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun captureDarkAndSettings() {
+        Assume.assumeTrue(outDir != null)
+        waitForTag("dashboard_fab")
+        createHabit("Drink water", "Amount", "2000")
+        createHabit("Stretch")
+        shot("09_today_dark")
+        compose.onNode(androidx.compose.ui.test.hasContentDescription("Open settings")).performClick()
+        waitForText("Theme")
+        shot("10_settings_dark")
+    }
 }
