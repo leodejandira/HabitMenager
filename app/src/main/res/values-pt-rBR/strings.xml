@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_today">Hoje</string>
+    <string name="nav_habits">Hábitos</string>
+    <string name="nav_calendar">Calendário</string>
+    <string name="nav_journal">Diário</string>
+    <string name="nav_tasks">Tarefas</string>
+
+    <string name="navigate_back">Voltar</string>
+    <string name="action_save">Salvar</string>
+    <string name="error_loading">Algo deu errado ao carregar. Tente novamente.</string>
+
+    <string name="greeting_morning">Bom dia</string>
+    <string name="greeting_afternoon">Boa tarde</string>
+    <string name="greeting_evening">Boa noite</string>
+    <string name="greeting_night">Boa noite</string>
+    <string name="greeting_morning_named">Bom dia, %1$s</string>
+    <string name="greeting_afternoon_named">Boa tarde, %1$s</string>
+    <string name="greeting_evening_named">Boa noite, %1$s</string>
+    <string name="greeting_night_named">Boa noite, %1$s</string>
+    <string name="dashboard_settings_cd">Abrir configurações</string>
+    <string name="dashboard_empty_title">Seu dia está livre</string>
+    <string name="dashboard_empty_message">Hábitos e tarefas agendados para hoje aparecerão aqui.</string>
+
+    <string name="habits_empty_title">Nenhum hábito ainda</string>
+    <string name="habits_empty_message">Seus hábitos, grupos e rotinas ficarão aqui.</string>
+    <string name="calendar_empty_title">Nada no calendário</string>
+    <string name="calendar_empty_message">Hábitos concluídos, tarefas e registros do diário aparecerão em suas datas.</string>
+    <string name="journal_empty_title">Nenhum registro no diário</string>
+    <string name="journal_empty_message">Reflexões diárias e notas de hábitos serão reunidas aqui.</string>
+    <string name="tasks_empty_title">Nenhuma tarefa</string>
+    <string name="tasks_empty_message">Tarefas, listas e lembretes serão organizados aqui.</string>
+
+    <string name="settings_title">Configurações</string>
+    <string name="settings_section_appearance">Aparência</string>
+    <string name="settings_theme">Tema</string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Escuro</string>
+    <string name="settings_dynamic_color">Usar cores do papel de parede</string>
+    <string name="settings_dynamic_color_summary">Ajusta a paleta do app ao seu papel de parede</string>
+    <string name="settings_section_calendar">Calendário</string>
+    <string name="settings_week_start">Primeiro dia da semana</string>
+    <string name="week_start_region_default">Padrão da região (%1$s)</string>
+    <string name="settings_section_profile">Perfil</string>
+    <string name="settings_display_name">Seu nome</string>
+    <string name="settings_display_name_supporting">Usado na saudação diária</string>
+    <string name="settings_saved">Salvo</string>
+    <string name="settings_error_save">Não foi possível salvar essa configuração. Tente novamente.</string>
+    <string name="settings_section_about">Sobre</string>
+    <string name="settings_version">Versão %1$s</string>
+</resources>
