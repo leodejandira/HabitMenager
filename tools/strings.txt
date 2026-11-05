@@ -1,0 +1,59 @@
+# key | English | Português (Brasil). Edit here, then run: python3 tools/gen_strings.py
+
+app_name | Steady | Steady
+nav_today | Today | Hoje
+nav_habits | Habits | Hábitos
+nav_calendar | Calendar | Calendário
+nav_journal | Journal | Diário
+nav_tasks | Tasks | Tarefas
+navigate_back | Navigate back | Voltar
+action_save | Save | Salvar
+error_loading | Something went wrong while loading. Please try again. | Algo deu errado ao carregar. Tente novamente.
+greeting_morning | Good morning | Bom dia
+greeting_afternoon | Good afternoon | Boa tarde
+greeting_evening | Good evening | Boa noite
+greeting_night | Good night | Boa noite
+greeting_morning_named | Good morning, %1$s | Bom dia, %1$s
+greeting_afternoon_named | Good afternoon, %1$s | Boa tarde, %1$s
+greeting_evening_named | Good evening, %1$s | Boa noite, %1$s
+greeting_night_named | Good night, %1$s | Boa noite, %1$s
+dashboard_settings_cd | Open settings | Abrir configurações
+dashboard_empty_title | Your day is clear | Seu dia está livre
+dashboard_empty_message | Habits and tasks scheduled for today will show up here. | Hábitos e tarefas agendados para hoje aparecerão aqui.
+habits_empty_title | No habits yet | Nenhum hábito ainda
+habits_empty_message | Your habits, groups and routines will live here. | Seus hábitos, grupos e rotinas ficarão aqui.
+calendar_empty_title | Nothing on the calendar | Nada no calendário
+calendar_empty_message | Completed habits, tasks and journal entries will appear on their dates. | Hábitos concluídos, tarefas e registros do diário aparecerão em suas datas.
+journal_empty_title | No journal entries | Nenhum registro no diário
+journal_empty_message | Daily reflections and habit notes will be collected here. | Reflexões diárias e notas de hábitos serão reunidas aqui.
+tasks_empty_title | No tasks | Nenhuma tarefa
+tasks_empty_message | Tasks, lists and reminders will be organized here. | Tarefas, listas e lembretes serão organizados aqui.
+settings_title | Settings | Configurações
+settings_section_appearance | Appearance | Aparência
+settings_theme | Theme | Tema
+theme_system | System | Sistema
+theme_light | Light | Claro
+theme_dark | Dark | Escuro
+settings_dynamic_color | Use wallpaper colors | Usar cores do papel de parede
+settings_dynamic_color_summary | Match the app palette to your wallpaper | Ajusta a paleta do app ao seu papel de parede
+settings_section_calendar | Calendar | Calendário
+settings_week_start | First day of the week | Primeiro dia da semana
+week_start_region_default | Region default (%1$s) | Padrão da região (%1$s)
+settings_section_profile | Profile | Perfil
+settings_display_name | Your name | Seu nome
+settings_display_name_supporting | Used in your daily greeting | Usado na saudação diária
+settings_saved | Saved | Salvo
+settings_error_save | Couldn\'t save that setting. Please try again. | Não foi possível salvar essa configuração. Tente novamente.
+settings_section_about | About | Sobre
+settings_version | Version %1$s | Versão %1$s
+list_inbox | Inbox | Entrada
+list_personal | Personal | Pessoal
+list_work | Work | Trabalho
+list_shopping | Shopping | Compras
+list_errands | Errands | Afazeres
+list_other | Other | Outros
+channel_habits | Habit reminders | Lembretes de hábitos
+channel_tasks | Task reminders | Lembretes de tarefas
+notification_habit_text | Time for your habit | Hora do seu hábito
+notification_task_text | Task reminder | Lembrete de tarefa
+action_mark_done | Mark done | Concluir

@@ -2,11 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!--
-        Phase 1 declares no runtime permissions. Notification, boot and
-        exact-alarm permissions are added in Phase 8 together with the
-        receivers and schedulers that use them.
-    -->
+    <!-- Reminders: notifications (runtime permission on Android 13+), rescheduling
+         after reboot, and exact alarms when the user allows them (Android 12+). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:name=".HabitApplication"
@@ -31,6 +31,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".data.scheduler.ReminderReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".data.scheduler.RescheduleReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
 
         <!-- WorkManager is initialised on demand with the Hilt worker factory
              (see HabitApplication), so the default initializer is removed. -->
