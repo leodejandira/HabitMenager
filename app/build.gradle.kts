@@ -60,6 +60,13 @@ android {
 
     testOptions {
         unitTests.isReturnDefaultValues = true
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            // Robolectric downloads its Android runtime jars; use the Google-hosted Maven Central mirror.
+            it.systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2")
+            it.systemProperty("robolectric.dependency.repo.id", "google-maven-central")
+            it.maxHeapSize = "3g"
+        }
     }
 
     packaging {
@@ -125,6 +132,11 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.ext.junit)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
 
     // Instrumented tests
     androidTestImplementation(platform(libs.androidx.compose.bom))

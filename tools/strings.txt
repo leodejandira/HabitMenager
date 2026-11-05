@@ -57,3 +57,304 @@ channel_tasks | Task reminders | Lembretes de tarefas
 notification_habit_text | Time for your habit | Hora do seu hábito
 notification_task_text | Task reminder | Lembrete de tarefa
 action_mark_done | Mark done | Concluir
+action_cancel | Cancel | Cancelar
+action_ok | OK | OK
+action_delete | Delete | Excluir
+action_edit | Edit | Editar
+action_add | Add | Adicionar
+action_done | Done | Concluir
+action_close | Close | Fechar
+action_start_timer | Start timer | Iniciar timer
+action_increment | Increase | Aumentar
+action_decrement | Decrease | Diminuir
+habit_choose_icon | Choose an icon | Escolha um ícone
+habit_done | Done | Concluído
+habit_not_done | Not done yet | Ainda não feito
+habit_skipped | Skipped | Pulado
+period_week_progress | %1$d/%2$d this week | %1$d/%2$d nesta semana
+period_month_progress | %1$d/%2$d this month | %1$d/%2$d neste mês
+elapsed_dhm | %1$dd %2$dh %3$dm | %1$dd %2$dh %3$dmin
+date_today | Today | Hoje
+date_yesterday | Yesterday | Ontem
+date_tomorrow | Tomorrow | Amanhã
+priority_none | No priority | Sem prioridade
+priority_low | Low | Baixa
+priority_medium | Medium | Média
+priority_high | High | Alta
+priority_urgent | Urgent | Urgente
+habit_type_boolean | Yes / no | Sim / não
+habit_type_numeric | Amount | Quantidade
+habit_type_duration | Duration | Duração
+habit_type_count | Count | Contagem
+habit_type_quit | Quit | Largar
+habit_type_boolean_help | Simply mark it done each day. | Basta marcar como feito a cada dia.
+habit_type_numeric_help | Track an amount in any unit, like 2000 ml or 5 km. | Registre uma quantidade em qualquer unidade, como 2000 ml ou 5 km.
+habit_type_duration_help | Track minutes spent. Use the timer or add time manually. | Registre os minutos dedicados. Use o timer ou adicione tempo manualmente.
+habit_type_count_help | Count repetitions, like 30 push-ups or 20 pages. | Conte repetições, como 30 flexões ou 20 páginas.
+habit_type_quit_help | Track the time since you quit something. Slips are recorded without erasing your history. | Acompanhe o tempo desde que você largou algo. Recaídas são registradas sem apagar seu histórico.
+habit_new | New habit | Novo hábito
+habit_edit | Edit habit | Editar hábito
+habit_name | Name | Nome
+habit_description | Description (optional) | Descrição (opcional)
+habit_color | Color | Cor
+habit_type | Type | Tipo
+habit_target | Daily goal | Meta diária
+habit_target_minutes | Goal (minutes) | Meta (minutos)
+habit_unit | Unit | Unidade
+habit_unit_hint | ml, km, pages… | ml, km, páginas…
+habit_step | Step | Incremento
+habit_frequency | Frequency | Frequência
+habit_times_per_week | Times per week | Vezes por semana
+habit_times_per_month | Times per month | Vezes por mês
+habit_dates | Dates | Datas
+habit_start_date | Starts %1$s | Início %1$s
+habit_end_date | Ends %1$s | Fim %1$s
+habit_no_end_date | No end date | Sem data de fim
+habit_clear_end_date | Remove end date | Remover data de fim
+habit_group | Group | Grupo
+habit_no_group | None | Nenhum
+habit_new_group | New group | Novo grupo
+group_name | Group name | Nome do grupo
+habit_reminders | Reminders | Lembretes
+habit_add_reminder | Add reminder | Adicionar lembrete
+freq_daily | Every day | Todo dia
+freq_weekdays | Specific days | Dias específicos
+freq_per_week | Times per week | Vezes por semana
+freq_per_month | Times per month | Vezes por mês
+error_name_required | Please enter a name. | Informe um nome.
+error_target_invalid | The goal must be a number greater than zero. | A meta deve ser um número maior que zero.
+error_step_invalid | The step must be a number greater than zero. | O incremento deve ser um número maior que zero.
+error_weekdays_required | Choose at least one day. | Escolha pelo menos um dia.
+error_times_invalid | Enter how many times (1–7 per week, 1–31 per month). | Informe quantas vezes (1–7 por semana, 1–31 por mês).
+error_end_before_start | The end date must be after the start date. | A data de fim deve ser depois da data de início.
+error_save_failed | Couldn't save. Please try again. | Não foi possível salvar. Tente novamente.
+error_not_found | This item no longer exists. | Este item não existe mais.
+action_archive | Archive | Arquivar
+action_clear | Clear | Limpar
+action_duplicate | Duplicate | Duplicar
+action_remove | Remove | Remover
+action_restore | Restore | Restaurar
+amount_label | Amount (%1$s) | Quantidade (%1$s)
+amount_negative_hint | Use a negative number to correct a mistake. | Use um número negativo para corrigir um erro.
+note_optional | Note (optional) | Nota (opcional)
+unit_minutes | minutes | minutos
+more_options | More options | Mais opções
+move_up | Move up | Mover para cima
+move_down | Move down | Mover para baixo
+show_more | Show more | Mostrar mais
+previous_day | Previous day | Dia anterior
+next_day | Next day | Próximo dia
+filter_all | All | Todos
+dashboard_welcome_title | Welcome to Steady | Boas-vindas ao Steady
+dashboard_welcome_message | Create your first habit or task to start tracking your day. | Crie seu primeiro hábito ou tarefa para começar a acompanhar seu dia.
+progress_title | Today's progress | Progresso de hoje
+progress_all_done | Everything done — great job! | Tudo feito — ótimo trabalho!
+progress_habits | %1$d of %2$d habits | %1$d de %2$d hábitos
+progress_tasks | %1$d of %2$d tasks | %1$d de %2$d tarefas
+completion_rate_short | %1$d%% completion | %1$d%% de conclusão
+routines_title | Routines | Rotinas
+routines_empty_title | No routines yet | Nenhuma rotina ainda
+routines_empty_message | Group habits into a sequence, like a morning or workout routine. | Agrupe hábitos em sequência, como uma rotina matinal ou de treino.
+routine_new | New routine | Nova rotina
+routine_edit | Routine | Rotina
+routine_name_hint | Morning routine | Rotina matinal
+routine_estimated_label | Estimated duration (minutes, optional) | Duração estimada (minutos, opcional)
+routine_estimated | About %1$d minutes | Cerca de %1$d minutos
+routine_minutes | %1$d min | %1$d min
+routine_steps | Steps | Etapas
+routine_add_steps | Add habits | Adicionar hábitos
+routine_no_habits | Create habits first, then add them to a routine. | Crie hábitos primeiro e depois adicione-os a uma rotina.
+routine_steps_progress | %1$d/%2$d steps | %1$d/%2$d etapas
+routine_complete_next | Complete: %1$s | Concluir: %1$s
+routine_all_done | Routine complete 🎉 | Rotina concluída 🎉
+routine_some_not_scheduled | Some steps are not scheduled today and are hidden. | Algumas etapas não estão agendadas para hoje e estão ocultas.
+routine_error_no_steps | Add at least one habit. | Adicione pelo menos um hábito.
+routine_delete_title | Delete routine? | Excluir rotina?
+routine_delete_message | The habits stay; only the routine is removed. | Os hábitos continuam; só a rotina é removida.
+suggestions_title | Habit ideas | Ideias de hábitos
+suggestion_minutes | %1$s min | %1$s min
+statistics_title | Statistics | Estatísticas
+habits_show_archived | Show archived habits | Mostrar hábitos arquivados
+habits_archived | Archived | Arquivados
+habits_archived_empty | No archived habits. | Nenhum hábito arquivado.
+habit_archived_label | Archived | Arquivado
+group_rename | Rename group | Renomear grupo
+group_delete_title | Delete group? | Excluir grupo?
+group_delete_message | Habits in this group are kept and become ungrouped. | Os hábitos deste grupo são mantidos e ficam sem grupo.
+group_progress | %1$d/%2$d today | %1$d/%2$d hoje
+habit_delete_title | Delete habit? | Excluir hábito?
+habit_delete_message | This permanently deletes the habit and its entire history. Archive it instead to keep the history. | Isso exclui o hábito e todo o histórico permanentemente. Arquive para manter o histórico.
+habit_report | Report | Relatório
+habit_log_entry | Log entry | Registrar
+habit_edit_entry | Edit entry | Editar registro
+habit_complete_day | Complete | Completar
+habit_skip_today | Skip today | Pular hoje
+habit_clear_today | Clear today | Limpar hoje
+habit_undone | Unmarked | Desmarcado
+habit_history | History | Histórico
+habit_history_empty | No entries yet. | Nenhum registro ainda.
+habit_notes | Notes | Notas
+habit_add_note | Add note | Adicionar nota
+entry_delete_title | Delete entry? | Excluir registro?
+entry_delete_message | Statistics and streaks will be recalculated. | Estatísticas e sequências serão recalculadas.
+stat_current_streak | Current streak | Sequência atual
+stat_longest_streak | Longest streak | Maior sequência
+stat_completion_rate | Completion rate | Taxa de conclusão
+stat_total_completions | Completions | Conclusões
+stat_total | Total | Total
+stat_average | Daily average | Média diária
+stat_best_day | Best day | Melhor dia
+stat_today_rate | Today | Hoje
+stat_week_rate | Last 7 days | Últimos 7 dias
+stat_month_rate | Last 30 days | Últimos 30 dias
+stat_habit_completions | Habit completions | Hábitos concluídos
+stat_tasks_completed | Tasks completed | Tarefas concluídas
+stat_best_current_streak | Best current streak | Melhor sequência atual
+stat_per_habit | By habit | Por hábito
+stat_completions_count | %1$d done | %1$d feitos
+chart_last_14_days | Last 14 days | Últimos 14 dias
+chart_heatmap | Activity | Atividade
+chart_this_week | Last 7 days | Últimos 7 dias
+chart_12_weeks | Last 12 weeks | Últimas 12 semanas
+chart_year | Past year | Último ano
+report_daily | Daily | Diário
+report_weekly | Weekly totals | Totais semanais
+range_all_time | All time | Tudo
+range_7_days | 7 days | 7 dias
+range_30_days | 30 days | 30 dias
+range_90_days | 90 days | 90 dias
+range_365_days | 1 year | 1 ano
+range_this_year | This year | Este ano
+quit_time_free | Time since quitting | Tempo desde que parou
+quit_longest | Longest run | Maior período
+quit_resets | Resets | Reinícios
+quit_next_milestone | Next milestone | Próximo marco
+quit_days_value | %1$d days | %1$d dias
+quit_milestones | Milestones reached: %1$s | Marcos alcançados: %1$s
+quit_record_relapse | Record a slip | Registrar recaída
+quit_relapse | Slip recorded | Recaída registrada
+quit_relapse_message | Slips happen. Your history and records are kept — the counter simply starts again from now. | Recaídas acontecem. Seu histórico e recordes são mantidos — o contador apenas recomeça agora.
+quit_restart | Start again | Recomeçar
+quit_history | Slips | Recaídas
+quit_msg_start | Every hour counts. You've got this. | Cada hora conta. Você consegue.
+quit_msg_days | The first days are the hardest — keep going. | Os primeiros dias são os mais difíceis — continue.
+quit_msg_weeks | Weeks of progress. Your body and mind are thanking you. | Semanas de progresso. Seu corpo e sua mente agradecem.
+quit_msg_months | Months strong. This is who you are now. | Meses firme. Isso agora faz parte de quem você é.
+timer_title | Timer | Timer
+timer_stopwatch | Stopwatch | Cronômetro
+timer_countdown | Countdown | Contagem regressiva
+timer_start | Start | Iniciar
+timer_pause | Pause | Pausar
+timer_resume | Resume | Retomar
+timer_reset | Reset | Zerar
+timer_save | Save session | Salvar sessão
+timer_discard | Discard | Descartar
+timer_running | Running | Em andamento
+timer_paused | Paused | Pausado
+timer_finished | Time's up | Tempo esgotado
+timer_saved | Saved %1$d minutes | %1$d minutos salvos
+timer_nothing_saved | Session discarded (less than a minute) | Sessão descartada (menos de um minuto)
+timer_other_running | Another habit's timer is running; starting here replaces it. | O timer de outro hábito está ativo; iniciar aqui o substitui.
+timer_background_note | The timer keeps counting if you leave the app. | O timer continua contando se você sair do app.
+task_new | New task | Nova tarefa
+task_edit | Edit task | Editar tarefa
+task_title | Title | Título
+task_description | Description (optional) | Descrição (opcional)
+task_list | List | Lista
+task_priority | Priority | Prioridade
+task_due | Due | Prazo
+task_no_date | No date | Sem data
+task_no_time | No time | Sem horário
+task_clear_date | Remove date | Remover data
+task_repeat | Repeat | Repetir
+task_repeat_until | Until %1$s | Até %1$s
+task_repeat_forever | No end | Sem fim
+task_reminder | Reminder | Lembrete
+task_reminder_default_time | Without a time, the reminder uses 9:00 on the due day. | Sem horário, o lembrete usa 9:00 no dia do prazo.
+task_editing_occurrence | Editing the occurrence on %1$s | Editando a ocorrência de %1$s
+task_delete_title | Delete task? | Excluir tarefa?
+task_delete_message | This task will be permanently deleted. | Esta tarefa será excluída permanentemente.
+tasks_upcoming | Upcoming | Próximas
+tasks_overdue | Overdue | Atrasadas
+tasks_all_open | All open | Todas abertas
+tasks_no_date | No date | Sem data
+tasks_completed | Completed | Concluídas
+tasks_sort | Sort | Ordenar
+tasks_filter_priority | Filter by priority | Filtrar por prioridade
+filter_all_priorities | All priorities | Todas as prioridades
+priority_at_least | %1$s or higher | %1$s ou maior
+sort_due_date | Due date | Prazo
+sort_priority | Priority | Prioridade
+sort_created | Recently created | Criadas recentemente
+tasks_stat_open | Open | Abertas
+tasks_stat_today | Done today | Feitas hoje
+tasks_stat_week | Last 7 days | Últimos 7 dias
+tasks_stat_total | All time | Total
+tasks_nothing_here | Nothing here | Nada por aqui
+tasks_nothing_here_message | No tasks match this view. | Nenhuma tarefa corresponde a esta visão.
+lists_all | All lists | Todas as listas
+lists_manage | Manage lists | Gerenciar listas
+list_new | New list | Nova lista
+list_edit | Edit list | Editar lista
+list_default | Default | Padrão
+list_open_tasks | %1$d open | %1$d abertas
+list_delete_title | Delete list? | Excluir lista?
+list_delete_message | Its tasks will be moved to the Inbox. | As tarefas serão movidas para a Entrada.
+recur_none | Never | Nunca
+recur_daily | Daily | Diariamente
+recur_weekly | Weekly | Semanalmente
+recur_biweekly | Every 2 weeks | A cada 2 semanas
+recur_monthly | Monthly | Mensalmente
+recur_yearly | Yearly | Anualmente
+recur_weekdays | On weekdays… | Em dias da semana…
+reminder_none | None | Nenhum
+reminder_at_time | At due time | No horário
+reminder_minutes_before | %1$d min before | %1$d min antes
+reminder_hour_before | 1 hour before | 1 hora antes
+reminder_day_before | 1 day before | 1 dia antes
+scope_edit_title | Edit recurring task | Editar tarefa recorrente
+scope_delete_title | Delete recurring task | Excluir tarefa recorrente
+scope_this | Only this occurrence | Apenas esta ocorrência
+scope_future | This and future occurrences | Esta e as próximas
+scope_all | All occurrences | Todas as ocorrências
+error_title_required | Please enter a title. | Informe um título.
+error_list_required | Choose a list. | Escolha uma lista.
+error_recurring_needs_date | Recurring tasks need a start date. | Tarefas recorrentes precisam de uma data de início.
+color_none | No color | Sem cor
+calendar_month | Month | Mês
+calendar_week | Week | Semana
+calendar_day | Day | Dia
+calendar_week_of | Week of %1$s | Semana de %1$s
+calendar_previous | Previous | Anterior
+calendar_next | Next | Próximo
+calendar_jump_today | Jump to today | Ir para hoje
+calendar_day_summary | %1$d%% · %2$d/%3$d habits · %4$d/%5$d tasks | %1$d%% · %2$d/%3$d hábitos · %4$d/%5$d tarefas
+calendar_past_hint | You can log or correct habits for this past day. | Você pode registrar ou corrigir hábitos deste dia passado.
+calendar_drag_hint | Long-press a task and drag it to another day to reschedule. | Toque e segure uma tarefa e arraste para outro dia para reagendar.
+calendar_cell_cd | Day %1$d, %2$d%% of habits done, %3$d open tasks | Dia %1$d, %2$d%% dos hábitos feitos, %3$d tarefas abertas
+journal_new | New entry | Nova anotação
+journal_edit | Edit entry | Editar anotação
+journal_search | Search entries | Buscar anotações
+journal_daily | Daily | Diárias
+journal_habit_notes | Habit notes | Notas de hábitos
+journal_bookmarked | Bookmarked | Favoritas
+journal_any_habit | Any habit | Qualquer hábito
+journal_bookmark | Bookmark | Favoritar
+journal_untitled | Untitled | Sem título
+journal_no_results | No matches | Nenhum resultado
+journal_no_results_message | Try a different word or filter. | Tente outra palavra ou filtro.
+journal_title | Title (optional) | Título (opcional)
+journal_content | Write freely… | Escreva livremente…
+journal_mood | Mood | Humor
+journal_preview | Preview formatting | Visualizar formatação
+journal_daily_entry | Daily entry | Anotação do dia
+journal_error_empty | Write something before saving. | Escreva algo antes de salvar.
+journal_format_help | Formatting: **bold**, *italic*, __underline__, # heading, - list, 1. numbered list | Formatação: **negrito**, *itálico*, __sublinhado__, # título, - lista, 1. lista numerada
+journal_delete_title | Delete entry? | Excluir anotação?
+journal_delete_message | This entry will be permanently deleted. | Esta anotação será excluída permanentemente.
+format_bold | Bold | Negrito
+format_italic | Italic | Itálico
+format_underline | Underline | Sublinhado
+format_heading | Heading | Título
+format_bullets | Bulleted list | Lista com marcadores
+format_numbered | Numbered list | Lista numerada
