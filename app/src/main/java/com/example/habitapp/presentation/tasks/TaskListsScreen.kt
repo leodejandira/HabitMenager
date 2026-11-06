@@ -27,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.clickable
 import com.example.habitapp.presentation.components.ListBadge
 import com.example.habitapp.presentation.components.ListIconPickerDialog
@@ -121,7 +122,7 @@ fun TaskListsScreen(onBack: () -> Unit, viewModel: TaskListsViewModel = hiltView
                             IconButton(onClick = { viewModel.move(index, 1) }, enabled = index < lists.lastIndex) {
                                 Icon(painterResource(R.drawable.ic_expand), stringResource(R.string.move_down))
                             }
-                            IconButton(onClick = { editing = list }) { Icon(painterResource(R.drawable.ic_edit), stringResource(R.string.action_edit)) }
+                            IconButton(onClick = { editing = list }, modifier = Modifier.testTag("list_edit_${list.name}")) { Icon(painterResource(R.drawable.ic_edit), stringResource(R.string.action_edit)) }
                             if (!list.isInbox) {
                                 IconButton(onClick = { viewModel.setArchived(list, !list.archived) }) {
                                     Icon(
@@ -163,7 +164,7 @@ private fun ListEditDialog(list: TaskList, onSave: (TaskList) -> Unit, onDismiss
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(HabitTheme.spacing.md)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ListBadge(icon, color, size = 48.dp, modifier = Modifier.clickable { pickingIcon = true })
+                    ListBadge(icon, color, size = 48.dp, modifier = Modifier.clickable { pickingIcon = true }.testTag("list_icon_button"))
                     TextButton(onClick = { pickingIcon = true }) { Text(stringResource(R.string.list_choose_icon)) }
                 }
                 OutlinedTextField(value = name, onValueChange = { name = it.take(40) }, label = { Text(stringResource(R.string.habit_name)) }, singleLine = true)

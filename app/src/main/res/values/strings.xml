@@ -542,4 +542,20 @@
     <string name="tracking_type">Tracking type</string>
     <string name="unit_custom">Custom unit</string>
     <string name="view_all_streaks">View all streaks</string>
+    <string name="home_next_days">Next 7 days</string>
+    <string name="task_status_overdue">Overdue</string>
+    <string name="task_status_due_soon">Due soon</string>
+    <string name="icons_general">General</string>
+    <string name="icons_work">Work</string>
+    <string name="icons_study">Study</string>
+    <string name="icons_home">Home</string>
+    <string name="icons_health">Health</string>
+    <string name="icons_sport">Sport</string>
+    <string name="icons_food">Food and drink</string>
+    <string name="icons_money">Money and shopping</string>
+    <string name="icons_travel">Travel</string>
+    <string name="icons_leisure">Leisure</string>
+    <string name="icons_people">People</string>
+    <string name="icons_nature">Nature</string>
+    <string name="icons_tech">Technology</string>
 </resources>

@@ -66,6 +66,7 @@ interface WidgetEntryPoint {
     fun habitRepository(): HabitRepository
     fun preferences(): UserPreferencesRepository
     fun timeProvider(): TimeProvider
+    fun taskRepository(): com.example.habitapp.domain.repository.TaskRepository
 }
 
 private fun Context.entryPoint(): WidgetEntryPoint =

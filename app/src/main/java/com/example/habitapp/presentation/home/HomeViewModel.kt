@@ -65,7 +65,7 @@ sealed interface HomeView {
 enum class SectionKind { OVERDUE, TASKS, HABITS, COMPLETED }
 
 /** Section titles; [DATE] uses [HomeSection.date], [LIST] uses [HomeSection.listName]. */
-enum class SectionTitle { OVERDUE, TASKS, HABITS, COMPLETED_TASKS, TODAY, UPCOMING, NO_DATE, RESULTS_TASKS, RESULTS_HABITS }
+enum class SectionTitle { OVERDUE, TASKS, HABITS, COMPLETED_TASKS, TODAY, UPCOMING, NO_DATE, RESULTS_TASKS, RESULTS_HABITS, NEXT_DAYS }
 
 data class HomeSection(
     val id: String,
@@ -198,13 +198,24 @@ class HomeViewModel @Inject constructor(
                 val overdue = TaskQueries.overdue(tasks, today)
                 if (overdue.isNotEmpty()) add(HomeSection("overdue", SectionKind.OVERDUE, SectionTitle.OVERDUE, tasks = overdue, collapsed = collapsed("overdue", false), total = overdue.size))
             }
-            val open = occurrences.filter { !it.completed }
-            add(
-                HomeSection(
-                    "tasks", SectionKind.TASKS, SectionTitle.TASKS, tasks = open, collapsed = collapsed("tasks", false),
-                    done = occurrences.count { it.completed }, total = occurrences.size,
-                ),
-            )
+            if (date == today) {
+                // Today: everything due in the next 7 days, so nothing sneaks up on you.
+                val upcoming = TaskQueries.upcoming(tasks, today, UPCOMING_DAYS)
+                add(
+                    HomeSection(
+                        "tasks", SectionKind.TASKS, SectionTitle.NEXT_DAYS, tasks = upcoming, collapsed = collapsed("tasks", false),
+                        total = upcoming.size,
+                    ),
+                )
+            } else {
+                val open = occurrences.filter { !it.completed }
+                add(
+                    HomeSection(
+                        "tasks", SectionKind.TASKS, SectionTitle.TASKS, tasks = open, collapsed = collapsed("tasks", false),
+                        done = occurrences.count { it.completed }, total = occurrences.size,
+                    ),
+                )
+            }
             add(
                 HomeSection(
                     "habits", SectionKind.HABITS, SectionTitle.HABITS, habits = visibleHabits, collapsed = collapsed("habits", false),
@@ -371,6 +382,7 @@ class HomeViewModel @Inject constructor(
 
     private companion object {
         const val TAG = "HomeViewModel"
+        const val UPCOMING_DAYS = 7
         const val KEY_VIEW = "view"
         const val KEY_DATE = "date"
         const val KEY_TOGGLED = "toggled_sections"

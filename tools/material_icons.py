@@ -27,18 +27,7 @@ ICONS = {
     "ic_home_settings": "dashboard_customize", "ic_widgets": "widgets", "ic_privacy": "shield", "ic_skip_day": "event_busy",
     "ic_postpone": "event_repeat", "ic_wont_do": "do_not_disturb_on", "ic_mood": "mood", "ic_lap": "flag",
     "ic_schedule": "schedule", "ic_repeat": "repeat", "ic_list_icon_default": "playlist_add_check",
-    # list icons (filled glyphs on a colored circle)
-    "li_checklist": "playlist_add_check", "li_inbox": "inbox-fill", "li_work": "business_center-fill", "li_school": "school-fill",
-    "li_home": "home-fill", "li_shopping": "shopping_cart-fill", "li_fitness": "fitness_center", "li_heart": "favorite-fill",
-    "li_build": "build-fill", "li_code": "code", "li_savings": "savings-fill", "li_pets": "pets", "li_flight": "flight",
-    "li_restaurant": "restaurant", "li_music": "music_note", "li_book": "menu_book-fill", "li_brush": "brush-fill",
-    "li_games": "sports_esports-fill", "li_health": "local_hospital-fill", "li_run": "directions_run", "li_spa": "spa-fill",
-    "li_eco": "eco-fill", "li_star": "star-fill", "li_idea": "lightbulb-fill", "li_money": "attach_money", "li_groups": "groups-fill",
-    "li_family": "family_restroom", "li_child": "child_care-fill", "li_laptop": "laptop_mac-fill", "li_phone": "mobile-fill",
-    "li_celebration": "celebration-fill", "li_science": "science-fill", "li_psychology": "psychology-fill",
-    "li_meditation": "self_improvement", "li_water": "water_drop-fill", "li_sleep": "bedtime-fill", "li_coffee": "coffee-fill",
-    "li_palette": "palette-fill", "li_camera": "photo_camera-fill", "li_car": "directions_car-fill", "li_cleaning": "cleaning_services-fill",
-    "li_person": "person-fill", "li_calendar": "calendar_month-fill", "li_rocket": "rocket_launch-fill",
+    # list icons live in tools/list_icons.py
 }
 os.makedirs(dst, exist_ok=True)
 missing = []

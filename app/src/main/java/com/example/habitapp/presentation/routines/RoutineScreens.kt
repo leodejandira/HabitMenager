@@ -37,6 +37,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.ui.platform.testTag
+import com.example.habitapp.presentation.components.ListIconPickerDialog
+import com.example.habitapp.presentation.components.ListBadge
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -57,8 +62,6 @@ import com.example.habitapp.domain.usecase.HabitDayItem
 import com.example.habitapp.domain.usecase.ObserveDayOverviewUseCase
 import com.example.habitapp.domain.util.TimeProvider
 import com.example.habitapp.presentation.components.ConfirmDialog
-import com.example.habitapp.presentation.components.EmojiBadge
-import com.example.habitapp.presentation.components.EmojiPickerDialog
 import com.example.habitapp.presentation.components.EmptyState
 import com.example.habitapp.presentation.components.FullScreenLoading
 import com.example.habitapp.presentation.components.HabitCard
@@ -67,7 +70,6 @@ import com.example.habitapp.presentation.components.SectionHeader
 import com.example.habitapp.presentation.habits.AmountDialog
 import com.example.habitapp.presentation.navigation.RoutineEditorRoute
 import com.example.habitapp.presentation.navigation.RoutineRunRoute
-import com.example.habitapp.presentation.theme.HabitColor
 import com.example.habitapp.presentation.theme.HabitTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -162,7 +164,7 @@ fun RoutinesScreen(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                     ) {
                         Row(Modifier.padding(HabitTheme.spacing.lg), verticalAlignment = Alignment.CenterVertically) {
-                            EmojiBadge(item.routine.emoji, HabitColor.INDIGO.resolve(), 44)
+                            ListBadge(item.routine.emoji, "periwinkle", size = 44.dp)
                             Column(Modifier.weight(1f).padding(horizontal = HabitTheme.spacing.md)) {
                                 Text(item.routine.name, style = MaterialTheme.typography.titleMedium)
                                 val details = buildList {
@@ -244,7 +246,7 @@ fun RoutineRunScreen(onBack: () -> Unit, onOpenHabit: (String) -> Unit, onTimer:
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(item?.routine?.let { "${it.emoji} ${it.name}" }.orEmpty()) },
+                title = { Text(item?.routine?.name.orEmpty()) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(painterResource(R.drawable.ic_arrow_back), stringResource(R.string.navigate_back)) } },
             )
         },
@@ -317,7 +319,7 @@ class RoutineEditorViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val existing = routineId?.let { id -> routines.observeRoutines().first().firstOrNull { it.id == id } }
-            draft.value = existing ?: Routine(UUID.randomUUID().toString(), "", "🌅", null, 0, emptyList())
+            draft.value = existing ?: Routine(UUID.randomUUID().toString(), "", "sun", null, 0, emptyList())
         }
     }
 
@@ -373,7 +375,8 @@ fun RoutineEditorScreen(onBack: () -> Unit, viewModel: RoutineEditorViewModel = 
                 Column(Modifier.padding(horizontal = HabitTheme.spacing.screenHorizontal), verticalArrangement = Arrangement.spacedBy(HabitTheme.spacing.sm)) {
                     error?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error) }
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.clickable { emojiPicker = true }) { EmojiBadge(routine.emoji, HabitColor.INDIGO.resolve(), 52) }
+                        ListBadge(routine.emoji, "periwinkle", size = 52.dp, modifier = Modifier.clickable { emojiPicker = true }.testTag("routine_icon"))
+                        Spacer(Modifier.width(12.dp))
                         OutlinedTextField(
                             value = routine.name,
                             onValueChange = { v -> viewModel.update { it.copy(name = v.take(50)) } },
@@ -432,7 +435,7 @@ fun RoutineEditorScreen(onBack: () -> Unit, viewModel: RoutineEditorViewModel = 
         }
     }
     if (emojiPicker) {
-        EmojiPickerDialog(onSelected = { e -> viewModel.update { it.copy(emoji = e) } }, onDismiss = { emojiPicker = false })
+        ListIconPickerDialog(colorKey = "periwinkle", onSelected = { key -> viewModel.update { it.copy(emoji = key) } }, onDismiss = { emojiPicker = false })
     }
 }
 

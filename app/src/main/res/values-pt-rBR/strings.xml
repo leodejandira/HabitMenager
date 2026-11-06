@@ -542,4 +542,20 @@
     <string name="tracking_type">Tipo de acompanhamento</string>
     <string name="unit_custom">Unidade personalizada</string>
     <string name="view_all_streaks">Ver todas as sequências</string>
+    <string name="home_next_days">Próximos 7 dias</string>
+    <string name="task_status_overdue">Vencida</string>
+    <string name="task_status_due_soon">Vence em breve</string>
+    <string name="icons_general">Geral</string>
+    <string name="icons_work">Trabalho</string>
+    <string name="icons_study">Estudos</string>
+    <string name="icons_home">Casa</string>
+    <string name="icons_health">Saúde</string>
+    <string name="icons_sport">Esportes</string>
+    <string name="icons_food">Comida e bebida</string>
+    <string name="icons_money">Dinheiro e compras</string>
+    <string name="icons_travel">Viagem</string>
+    <string name="icons_leisure">Lazer</string>
+    <string name="icons_people">Pessoas</string>
+    <string name="icons_nature">Natureza</string>
+    <string name="icons_tech">Tecnologia</string>
 </resources>

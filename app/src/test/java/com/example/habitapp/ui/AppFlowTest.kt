@@ -110,6 +110,9 @@ class AppFlowTest {
         compose.onNodeWithTag("quick_task_title").performTextReplacement("Buy milk")
         compose.onNodeWithTag("quick_task_send").performClick()
         waitForTag("task_row_Buy milk")
+        // New tasks default to today, which is inside the "due soon" window.
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("due_soon_dot", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("overdue_dot", useUnmergedTree = true).fetchSemanticsNodes().isEmpty() }
 
         tab(TopLevelDestination.CALENDAR)
         waitForTag(CalendarTestTags.SCREEN)

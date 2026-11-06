@@ -259,6 +259,8 @@ fun TaskCard(
         }
     }
     val overdue = !occurrence.completed && occurrence.date?.isBefore(today) == true
+    val dueSoon = !occurrence.completed && occurrence.date != null && !occurrence.date.isBefore(today) &&
+        !occurrence.date.isAfter(today.plusDays(DUE_SOON_DAYS))
     Row(
         modifier
             .fillMaxWidth()
@@ -301,7 +303,28 @@ fun TaskCard(
             }
         }
         SquareCheck(occurrence.completed, onToggle, task.title)
+        // Status on the right: red when overdue, yellow when due within DUE_SOON_DAYS.
+        // Fixed slot so checkboxes line up whether or not a dot is shown.
+        Spacer(Modifier.width(8.dp))
+        when {
+            overdue -> StatusDot(OverdueRed, stringResource(R.string.task_status_overdue), Modifier.testTag("overdue_dot"))
+            dueSoon -> StatusDot(DueSoonYellow, stringResource(R.string.task_status_due_soon), Modifier.testTag("due_soon_dot"))
+            else -> Spacer(Modifier.size(10.dp))
+        }
     }
+}
+
+/** Tasks due today up to this many days ahead get the yellow "due soon" dot. */
+const val DUE_SOON_DAYS = 2L
+val DueSoonYellow = Color(0xFFF5C542)
+val OverdueRed = Color(0xFFEF5350)
+
+@Composable
+fun StatusDot(color: Color, description: String, modifier: Modifier = Modifier) {
+    Box(
+        modifier.size(10.dp).clip(CircleShape).background(color)
+            .semantics { contentDescription = description },
+    )
 }
 
 @Composable

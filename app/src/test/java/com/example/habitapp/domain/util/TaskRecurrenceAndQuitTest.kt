@@ -29,6 +29,25 @@ class TaskRecurrenceTest {
     )
 
     @Test
+    fun `upcoming lists the next 7 days once per series and skips done and later tasks`() {
+        val today = LocalDate.of(2026, 11, 6)
+        val daily = task(today, RecurrenceType.DAILY).copy(id = "daily", title = "Daily")
+        val inThree = Task(id = "a", listId = "l", title = "In three days", dueDate = today.plusDays(3), createdAt = Instant.EPOCH)
+        val inSix = inThree.copy(id = "b", title = "Last day of window", dueDate = today.plusDays(6))
+        val inSeven = inThree.copy(id = "c", title = "Outside window", dueDate = today.plusDays(7))
+        val done = inThree.copy(id = "d", title = "Done", completedAt = Instant.EPOCH)
+        val data = com.example.habitapp.domain.repository.TaskData(
+            tasks = listOf(daily, inThree, inSix, inSeven, done),
+            completions = mapOf("daily" to mapOf(today to Instant.EPOCH)),
+            exceptions = emptyMap(),
+        )
+        val result = com.example.habitapp.domain.usecase.TaskQueries.upcoming(data, today, 7)
+        assertEquals(listOf("daily", "a", "b"), result.map { it.task.id })
+        // Today's occurrence of the daily series is done, so the next open one (tomorrow) represents it.
+        assertEquals(today.plusDays(1), result.first().date)
+    }
+
+    @Test
     fun `daily recurrence never occurs before the anchor`() {
         val t = task(LocalDate.of(2026, 11, 5), RecurrenceType.DAILY)
         assertFalse(TaskRecurrenceCalculator.occursOn(t, LocalDate.of(2026, 11, 4)))

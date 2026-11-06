@@ -19,6 +19,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
@@ -31,52 +34,7 @@ import com.example.habitapp.presentation.theme.OnPastel
 
 /** Icons a task list can use; only the key is stored. */
 object ListIcons {
-    val all: List<Pair<String, Int>> = listOf(
-        "checklist" to R.drawable.li_checklist,
-        "inbox" to R.drawable.li_inbox,
-        "work" to R.drawable.li_work,
-        "school" to R.drawable.li_school,
-        "home" to R.drawable.li_home,
-        "shopping" to R.drawable.li_shopping,
-        "fitness" to R.drawable.li_fitness,
-        "heart" to R.drawable.li_heart,
-        "build" to R.drawable.li_build,
-        "code" to R.drawable.li_code,
-        "savings" to R.drawable.li_savings,
-        "money" to R.drawable.li_money,
-        "pets" to R.drawable.li_pets,
-        "flight" to R.drawable.li_flight,
-        "restaurant" to R.drawable.li_restaurant,
-        "music" to R.drawable.li_music,
-        "book" to R.drawable.li_book,
-        "brush" to R.drawable.li_brush,
-        "games" to R.drawable.li_games,
-        "health" to R.drawable.li_health,
-        "run" to R.drawable.li_run,
-        "spa" to R.drawable.li_spa,
-        "eco" to R.drawable.li_eco,
-        "star" to R.drawable.li_star,
-        "idea" to R.drawable.li_idea,
-        "groups" to R.drawable.li_groups,
-        "family" to R.drawable.li_family,
-        "child" to R.drawable.li_child,
-        "laptop" to R.drawable.li_laptop,
-        "phone" to R.drawable.li_phone,
-        "celebration" to R.drawable.li_celebration,
-        "science" to R.drawable.li_science,
-        "psychology" to R.drawable.li_psychology,
-        "meditation" to R.drawable.li_meditation,
-        "water" to R.drawable.li_water,
-        "sleep" to R.drawable.li_sleep,
-        "coffee" to R.drawable.li_coffee,
-        "palette" to R.drawable.li_palette,
-        "camera" to R.drawable.li_camera,
-        "car" to R.drawable.li_car,
-        "cleaning" to R.drawable.li_cleaning,
-        "person" to R.drawable.li_person,
-        "calendar" to R.drawable.li_calendar,
-        "rocket" to R.drawable.li_rocket,
-    )
+    val all: List<Pair<String, Int>> = ListIconCatalog.categories.flatMap { it.second }
     private val byKey = all.toMap()
 
     /** Earlier versions stored emoji; anything unknown falls back to the checklist glyph. */
@@ -87,6 +45,10 @@ object ListIcons {
         "🛒" -> R.drawable.li_shopping
         "🏃" -> R.drawable.li_run
         "🙂" -> R.drawable.li_person
+        "🌅", "☀️" -> R.drawable.li_sun
+        "🌙" -> R.drawable.li_moon
+        "🧘" -> R.drawable.li_meditation
+        "💪" -> R.drawable.li_fitness
         else -> R.drawable.li_checklist
     }
 }
@@ -124,18 +86,29 @@ fun ListIconPickerDialog(colorKey: String, onSelected: (String) -> Unit, onDismi
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.list_choose_icon)) },
         text = {
-            LazyVerticalGrid(columns = GridCells.Adaptive(52.dp), modifier = Modifier.heightIn(max = 380.dp)) {
-                items(ListIcons.all) { (key, _) ->
-                    Box(
-                        Modifier
-                            .size(52.dp)
-                            .clip(CircleShape)
-                            .clickable {
-                                onSelected(key)
-                                onDismiss()
-                            },
-                        contentAlignment = Alignment.Center,
-                    ) { ListBadge(key, colorKey, size = 40.dp) }
+            LazyVerticalGrid(columns = GridCells.Adaptive(52.dp), modifier = Modifier.heightIn(max = 460.dp)) {
+                ListIconCatalog.categories.forEach { (category, icons) ->
+                    item(key = "h_$category", span = { GridItemSpan(maxLineSpan) }) {
+                        Text(
+                            stringResource(iconCategoryLabel(category)),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
+                        )
+                    }
+                    items(icons, key = { it.first }) { (key, _) ->
+                        Box(
+                            Modifier
+                                .size(52.dp)
+                                .clip(CircleShape)
+                                .testTag("list_icon_$key")
+                                .clickable {
+                                    onSelected(key)
+                                    onDismiss()
+                                },
+                            contentAlignment = Alignment.Center,
+                        ) { ListBadge(key, colorKey, size = 40.dp) }
+                    }
                 }
             }
         },
@@ -143,4 +116,20 @@ fun ListIconPickerDialog(colorKey: String, onSelected: (String) -> Unit, onDismi
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel), color = MaterialTheme.colorScheme.onSurface) }
         },
     )
+}
+
+private fun iconCategoryLabel(category: String): Int = when (category) {
+    "work" -> R.string.icons_work
+    "study" -> R.string.icons_study
+    "home" -> R.string.icons_home
+    "health" -> R.string.icons_health
+    "sport" -> R.string.icons_sport
+    "food" -> R.string.icons_food
+    "money" -> R.string.icons_money
+    "travel" -> R.string.icons_travel
+    "leisure" -> R.string.icons_leisure
+    "people" -> R.string.icons_people
+    "nature" -> R.string.icons_nature
+    "tech" -> R.string.icons_tech
+    else -> R.string.icons_general
 }

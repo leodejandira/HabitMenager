@@ -543,3 +543,19 @@ tracking_select | Select | Selecionar
 tracking_type | Tracking type | Tipo de acompanhamento
 unit_custom | Custom unit | Unidade personalizada
 view_all_streaks | View all streaks | Ver todas as sequências
+home_next_days | Next 7 days | Próximos 7 dias
+task_status_overdue | Overdue | Vencida
+task_status_due_soon | Due soon | Vence em breve
+icons_general | General | Geral
+icons_work | Work | Trabalho
+icons_study | Study | Estudos
+icons_home | Home | Casa
+icons_health | Health | Saúde
+icons_sport | Sport | Esportes
+icons_food | Food and drink | Comida e bebida
+icons_money | Money and shopping | Dinheiro e compras
+icons_travel | Travel | Viagem
+icons_leisure | Leisure | Lazer
+icons_people | People | Pessoas
+icons_nature | Nature | Natureza
+icons_tech | Technology | Tecnologia

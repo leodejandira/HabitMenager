@@ -25,6 +25,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
+import kotlinx.coroutines.flow.first
 
 /**
  * Renders key screens to PNG files for visual review (dark theme, Portuguese, like the reference prints).
@@ -75,6 +76,34 @@ class ScreenshotTest {
         saveHabit()
     }
 
+    /** Tasks spread around today: one overdue, two due soon, two later this week. */
+    private fun seedTasks() {
+        val app = compose.activity.applicationContext
+        val entry = dagger.hilt.android.EntryPointAccessors.fromApplication(app, com.example.habitapp.widgets.WidgetEntryPoint::class.java)
+        val repo = entry.taskRepository()
+        val today = entry.timeProvider().today()
+        kotlinx.coroutines.runBlocking {
+            val listId = entry.taskRepository().observeLists().first().first().id
+            listOf(
+                "Enviar relatório" to -2L,
+                "Comprar presente" to 1L,
+                "Renovar seguro do carro" to 2L,
+                "Consulta no dentista" to 4L,
+                "Revisar orçamento" to 6L,
+            ).forEach { (title, offset) ->
+                repo.saveTask(
+                    com.example.habitapp.domain.model.Task(
+                        id = java.util.UUID.randomUUID().toString(),
+                        listId = listId,
+                        title = title,
+                        dueDate = today.plusDays(offset),
+                        createdAt = java.time.Instant.now(),
+                    ),
+                )
+            }
+        }
+    }
+
     @Test
     fun captureScreens() {
         Assume.assumeTrue(outDir != null)
@@ -102,6 +131,11 @@ class ScreenshotTest {
         shot("06_tarefa_rapida")
         compose.onNodeWithTag("quick_task_send").performClick()
         waitForTag("task_row_Pagar conta de luz")
+        seedTasks()
+        waitForTag("task_row_Renovar seguro do carro")
+        compose.waitForIdle()
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("postpone_overdue", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(10_000) { compose.onAllNodesWithTag("overdue_dot", useUnmergedTree = true).fetchSemanticsNodes().size == 1 }
         shot("07_hoje")
         compose.onNodeWithTag("home_menu").performClick()
         waitForTag("drawer_all_habits")

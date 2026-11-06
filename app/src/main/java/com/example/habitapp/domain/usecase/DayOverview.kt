@@ -79,6 +79,16 @@ object TaskQueries {
             }
         }.sortedWith(occurrenceOrder)
 
+    /**
+     * Open tasks due from [from] through the following [days] days (inclusive of [from]).
+     * A recurring series appears once, at its first open occurrence in the window.
+     */
+    fun upcoming(data: TaskData, from: LocalDate, days: Int = 7): List<TaskOccurrence> {
+        val seen = HashSet<String>()
+        return (0 until days).flatMap { offset -> occurrencesOn(data, from.plusDays(offset.toLong())) }
+            .filter { !it.completed && seen.add(it.task.id) }
+    }
+
     /** One-off tasks due before [today] that are still open. */
     fun overdue(data: TaskData, today: LocalDate): List<TaskOccurrence> =
         data.tasks.filter { !it.recurrence.isRecurring && it.completedAt == null && it.dueDate?.isBefore(today) == true }

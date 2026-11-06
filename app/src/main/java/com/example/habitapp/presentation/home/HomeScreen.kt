@@ -50,6 +50,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -302,7 +304,11 @@ private fun HomeContent(
         }
         return
     }
-    LazyColumn(contentPadding = PaddingValues(bottom = 110.dp)) {
+    val listState = rememberLazyListState()
+    LazyColumn(state = listState, contentPadding = PaddingValues(bottom = 110.dp), modifier = Modifier.testTag("home_list")) {
+        // A permanent first item: the list anchors to it, so sections that appear later above the
+        // others (e.g. a task that just became overdue) show up instead of being scrolled off the top.
+        item(key = "top_anchor") { Spacer(Modifier.fillMaxWidth().height(1.dp)) }
         state.sections.forEach { section ->
             item(key = "header_${section.id}") {
                 SectionHeader(section, state, onToggle = { viewModel.toggleSection(section.id) }, onPostpone = { onPostpone(section.tasks) })
@@ -364,6 +370,7 @@ private fun SectionHeader(section: HomeSection, state: HomeUiState.Ready, onTogg
         SectionTitle.NO_DATE -> stringResource(R.string.tasks_no_date)
         SectionTitle.RESULTS_TASKS -> stringResource(R.string.nav_tasks)
         SectionTitle.RESULTS_HABITS -> stringResource(R.string.nav_habits)
+        SectionTitle.NEXT_DAYS -> stringResource(R.string.home_next_days)
     }
     val icon = when (section.kind) {
         SectionKind.OVERDUE -> R.drawable.ic_info
