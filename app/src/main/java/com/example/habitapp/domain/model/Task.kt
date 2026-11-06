@@ -30,6 +30,7 @@ data class TaskList(
     val sortOrder: Int,
     val archived: Boolean,
     val isInbox: Boolean,
+    val icon: String = "",
 )
 
 data class Task(

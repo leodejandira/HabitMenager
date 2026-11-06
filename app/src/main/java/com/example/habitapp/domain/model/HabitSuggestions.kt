@@ -36,7 +36,7 @@ data class HabitSuggestion(
 /** Local, offline catalog of habit ideas. */
 object HabitSuggestions {
     private val MWF = HabitFrequency(FrequencyType.WEEKDAYS, setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY))
-    private fun perWeek(n: Int) = HabitFrequency(FrequencyType.TIMES_PER_WEEK, timesPerPeriod = n)
+    private fun perWeek(n: Int) = HabitFrequency(FrequencyType.TIMES_PER_WEEK, timesPerPeriod = n) // converted to a weekly goal by the editor
 
     val all: List<HabitSuggestion> = listOf(
         HabitSuggestion("drink_water", SuggestionCategory.HEALTH, "💧", "Drink water", "Beber água", HabitType.NUMERIC, 2000.0, 250.0, "ml", "ml", "ocean"),

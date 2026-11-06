@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.habitapp.domain.model.CalendarView
+import com.example.habitapp.domain.model.FontSize
+import com.example.habitapp.domain.model.HabitDisplay
 import com.example.habitapp.domain.model.ThemeMode
 import com.example.habitapp.domain.model.UserPreferences
 import com.example.habitapp.domain.repository.UserPreferencesRepository
@@ -68,6 +70,18 @@ class DataStoreUserPreferencesRepository @Inject constructor(
         dataStore.edit { it[Keys.SHOW_OVERDUE] = show }
     }
 
+    override suspend fun setHabitDisplay(display: HabitDisplay) {
+        dataStore.edit { it[Keys.HABIT_DISPLAY] = display.name }
+    }
+
+    override suspend fun setFontSize(size: FontSize) {
+        dataStore.edit { it[Keys.FONT_SIZE] = size.name }
+    }
+
+    override suspend fun setTimerDefaultCountdown(countdown: Boolean) {
+        dataStore.edit { it[Keys.TIMER_COUNTDOWN] = countdown }
+    }
+
     private fun Preferences.toUserPreferences(): UserPreferences = UserPreferences(
         themeMode = this[Keys.THEME_MODE]
             ?.let { stored -> ThemeMode.entries.firstOrNull { it.name == stored } }
@@ -82,6 +96,9 @@ class DataStoreUserPreferencesRepository @Inject constructor(
             ?: CalendarView.MONTH,
         hideCompletedHabits = this[Keys.HIDE_COMPLETED] ?: false,
         showOverdueOnToday = this[Keys.SHOW_OVERDUE] ?: true,
+        habitDisplay = this[Keys.HABIT_DISPLAY]?.let { v -> HabitDisplay.entries.firstOrNull { it.name == v } } ?: HabitDisplay.COMPACT,
+        fontSize = this[Keys.FONT_SIZE]?.let { v -> FontSize.entries.firstOrNull { it.name == v } } ?: FontSize.DEFAULT,
+        timerDefaultCountdown = this[Keys.TIMER_COUNTDOWN] ?: false,
     )
 
     private object Keys {
@@ -92,6 +109,9 @@ class DataStoreUserPreferencesRepository @Inject constructor(
         val CALENDAR_VIEW = stringPreferencesKey("default_calendar_view")
         val HIDE_COMPLETED = booleanPreferencesKey("hide_completed_habits")
         val SHOW_OVERDUE = booleanPreferencesKey("show_overdue_today")
+        val HABIT_DISPLAY = stringPreferencesKey("habit_display")
+        val FONT_SIZE = stringPreferencesKey("font_size")
+        val TIMER_COUNTDOWN = booleanPreferencesKey("timer_default_countdown")
     }
 
     private companion object {

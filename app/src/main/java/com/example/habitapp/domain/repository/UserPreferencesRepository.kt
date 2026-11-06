@@ -1,6 +1,8 @@
 package com.example.habitapp.domain.repository
 
 import com.example.habitapp.domain.model.CalendarView
+import com.example.habitapp.domain.model.FontSize
+import com.example.habitapp.domain.model.HabitDisplay
 import com.example.habitapp.domain.model.ThemeMode
 import com.example.habitapp.domain.model.UserPreferences
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +26,12 @@ interface UserPreferencesRepository {
     suspend fun setHideCompletedHabits(hide: Boolean)
 
     suspend fun setShowOverdueOnToday(show: Boolean)
+
+    suspend fun setHabitDisplay(display: HabitDisplay)
+
+    suspend fun setFontSize(size: FontSize)
+
+    suspend fun setTimerDefaultCountdown(countdown: Boolean)
 }
 
 /** Backup, restore and reset of all user data. [uri] is a content URI from the system file picker. */

@@ -337,7 +337,7 @@ class HabitReportViewModel @Inject constructor(
             period = selected,
             today = today,
             bars = bars,
-            rate = if (habit.frequency.isFlexible) HabitCalculator.completionRate(habit, progress, today, firstDay) else if (scheduled == 0) 0f else done.toFloat() / scheduled,
+            rate = if (habit.goalPeriod != com.example.habitapp.domain.model.GoalPeriod.DAY) HabitCalculator.completionRate(habit, progress, today, firstDay) else if (scheduled == 0) 0f else done.toFloat() / scheduled,
             completions = inPeriod.values.count { it.completed },
             total = withValues.sumOf { it.total },
             average = if (withValues.isEmpty()) 0.0 else withValues.sumOf { it.total } / withValues.size,

@@ -15,7 +15,7 @@ import javax.inject.Inject
 sealed interface MainUiState {
     data object Loading : MainUiState
 
-    data class Ready(val themeMode: ThemeMode, val useDynamicColor: Boolean) : MainUiState
+    data class Ready(val themeMode: ThemeMode, val useDynamicColor: Boolean, val fontScale: Float = 1f) : MainUiState
 }
 
 /** Holds the app-wide appearance settings the activity needs before drawing content. */
@@ -28,6 +28,7 @@ class MainViewModel @Inject constructor(
         MainUiState.Ready(
             themeMode = preferences.themeMode,
             useDynamicColor = preferences.useDynamicColor,
+            fontScale = preferences.fontSize.scale,
         )
     }
 

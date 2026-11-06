@@ -1,6 +1,8 @@
 package com.example.habitapp.domain.util
 
 import com.example.habitapp.domain.model.FrequencyType
+import com.example.habitapp.domain.model.GoalPeriod
+import com.example.habitapp.domain.model.GoalType
 import com.example.habitapp.domain.model.Habit
 import com.example.habitapp.domain.model.HabitActivity
 import com.example.habitapp.domain.model.HabitFrequency
@@ -114,24 +116,28 @@ class HabitCalculatorTest {
     }
 
     @Test
-    fun `weekly target streak counts weeks that met the quota`() {
-        val h = habit(frequency = HabitFrequency(FrequencyType.TIMES_PER_WEEK, timesPerPeriod = 2), start = LocalDate.of(2026, 10, 12))
-        // Weeks start Monday: Oct 12, Oct 19, Oct 26, Nov 2 (current).
+    fun `weekly goal sums the week and streaks count met weeks`() {
+        // "At least 2 per week"; weeks start Monday: Oct 12, Oct 19, Oct 26, Nov 2 (current).
+        val h = habit(HabitType.COUNT, target = 2.0, start = LocalDate.of(2026, 10, 12)).copy(goalPeriod = GoalPeriod.WEEK)
         val entries = listOf(
-            LocalDate.of(2026, 10, 13), LocalDate.of(2026, 10, 15), // week 1: 2 ✓
-            LocalDate.of(2026, 10, 20), // week 2: 1 ✗
-            LocalDate.of(2026, 10, 27), LocalDate.of(2026, 10, 29), // week 3: 2 ✓
-            LocalDate.of(2026, 11, 3), // current week: 1 (pending)
-        ).map { entry(it) }
+            entry(LocalDate.of(2026, 10, 13), 2.0), // week 1: 2 ✓ (one day, two times)
+            entry(LocalDate.of(2026, 10, 20)), // week 2: 1 ✗
+            entry(LocalDate.of(2026, 10, 27)), entry(LocalDate.of(2026, 10, 29)), // week 3: 2 ✓
+            entry(LocalDate.of(2026, 11, 3)), // current week: 1 (pending)
+        )
         val s = streak(h, entries)
         assertEquals(StreakUnit.WEEK, s.unit)
         assertEquals(1, s.current)
         assertEquals(1, s.longest)
+        val p = HabitCalculator.periodProgress(h, HabitCalculator.progressByDay(h, entries), today, monday, today)
+        assertEquals(1.0, p.total, 0.0)
+        assertTrue(p.ongoing)
+        assertFalse(p.met)
     }
 
     @Test
-    fun `monthly target streak spans consecutive months`() {
-        val h = habit(frequency = HabitFrequency(FrequencyType.TIMES_PER_MONTH, timesPerPeriod = 2), start = LocalDate.of(2026, 9, 1))
+    fun `monthly goal streak spans consecutive months`() {
+        val h = habit(HabitType.COUNT, target = 2.0, start = LocalDate.of(2026, 9, 1)).copy(goalPeriod = GoalPeriod.MONTH)
         val entries = listOf(
             LocalDate.of(2026, 9, 3), LocalDate.of(2026, 9, 10),
             LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 20),
@@ -140,6 +146,33 @@ class HabitCalculatorTest {
         val s = streak(h, entries)
         assertEquals(StreakUnit.MONTH, s.unit)
         assertEquals(3, s.current)
+    }
+
+    @Test
+    fun `daily limit goal is met while staying under the limit`() {
+        // "At most 2 coffees per day".
+        val h = habit(HabitType.COUNT, target = 2.0, start = today.minusDays(3)).copy(goalType = GoalType.AT_MOST)
+        val entries = listOf(
+            entry(today.minusDays(3), 1.0, 2.0), // ok
+            entry(today.minusDays(2), 3.0, 2.0), // over the limit
+            // yesterday: nothing logged -> ok
+            entry(today, 1.0, 2.0), // today so far ok (pending)
+        )
+        val s = streak(h, entries)
+        assertEquals(1, s.current)
+        assertEquals(1, s.longest)
+        val progress = HabitCalculator.progressByDay(h, entries)
+        assertTrue(HabitCalculator.isDone(h, progress, today, monday, today))
+        assertFalse(HabitCalculator.isDone(h, progress, today.minusDays(2), monday, today))
+    }
+
+    @Test
+    fun `streak runs list every run longest first`() {
+        val h = habit()
+        val entries = (5L..9L).map { entry(today.minusDays(it)) } + (1L..2L).map { entry(today.minusDays(it)) }
+        val runs = HabitCalculator.streakRuns(h, HabitCalculator.progressByDay(h, entries), today, monday)
+        assertEquals(listOf(5, 2), runs.map { it.length })
+        assertEquals(today.minusDays(9), runs.first().start)
     }
 
     @Test
@@ -152,12 +185,13 @@ class HabitCalculatorTest {
     }
 
     @Test
-    fun `flexible habit stops counting toward daily progress once the quota is met`() {
-        val h = habit(frequency = HabitFrequency(FrequencyType.TIMES_PER_WEEK, timesPerPeriod = 2), start = LocalDate.of(2026, 10, 1))
+    fun `weekly goal stops counting toward daily progress once reached`() {
+        val h = habit(HabitType.COUNT, target = 2.0, start = LocalDate.of(2026, 10, 1)).copy(goalPeriod = GoalPeriod.WEEK)
         val entries = listOf(entry(LocalDate.of(2026, 11, 2)), entry(LocalDate.of(2026, 11, 3)))
         val progress = HabitCalculator.progressByDay(h, entries)
         assertFalse(HabitCalculator.countsTowardDailyProgress(h, progress, today, monday))
         assertTrue(HabitCalculator.countsTowardDailyProgress(h, progress, LocalDate.of(2026, 11, 3), monday))
+        assertTrue(HabitCalculator.isDone(h, progress, today, monday, today))
     }
 
     @Test

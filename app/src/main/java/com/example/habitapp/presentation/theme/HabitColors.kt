@@ -5,31 +5,53 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 /**
- * User-selectable habit / list accent colors.
- *
- * Only the stable [key] is persisted in the database (never an ARGB value), so the
- * palette can be retuned for contrast without migrating user data. Each entry has a
- * light- and dark-theme variant tuned for legibility on the app surfaces.
+ * Pastel palette for habits and lists. Only the stable [key] is stored in the database.
+ * Pastels are readable with dark text on both themes, so one value serves light and dark.
  */
 @Immutable
-enum class HabitColor(val key: String, val light: Color, val dark: Color) {
-    EVERGREEN("evergreen", Color(0xFF2F6B5F), Color(0xFF7FCBB6)),
-    OCEAN("ocean", Color(0xFF1F6A9A), Color(0xFF8BC8F2)),
-    INDIGO("indigo", Color(0xFF4E5BB0), Color(0xFFB4BDFF)),
-    VIOLET("violet", Color(0xFF7A4BA8), Color(0xFFD7B5FA)),
-    ROSE("rose", Color(0xFFAD3E6B), Color(0xFFFFADCB)),
-    CORAL("coral", Color(0xFFC0503A), Color(0xFFFFB3A2)),
-    AMBER("amber", Color(0xFFA86A00), Color(0xFFFFC56B)),
-    OLIVE("olive", Color(0xFF5E6E1F), Color(0xFFC3D57A)),
-    TEAL("teal", Color(0xFF006A6A), Color(0xFF6FD8D6)),
-    SLATE("slate", Color(0xFF52606D), Color(0xFFB8C6D4));
+enum class HabitColor(val key: String, val color: Color) {
+    CORAL("coral", Color(0xFFF7845E)),
+    PEACH("peach", Color(0xFFF6B48C)),
+    PINK("pink", Color(0xFFF4A0A8)),
+    ROSE("rose", Color(0xFFE5577D)),
+    YELLOW("yellow", Color(0xFFF6DF8C)),
+    AMBER("amber", Color(0xFFF5C842)),
+    MINT("mint", Color(0xFFA8D8B0)),
+    TEAL("teal", Color(0xFF4DB6AC)),
+    AQUA("aqua", Color(0xFF95DDE3)),
+    CYAN("cyan", Color(0xFF4DD0E1)),
+    SKY("sky", Color(0xFF5DADEC)),
+    BLUE("blue", Color(0xFF4A90E2)),
+    LAVENDER("lavender", Color(0xFFC4C8EC)),
+    PERIWINKLE("periwinkle", Color(0xFF9FA8DA)),
+    INDIGO("indigo", Color(0xFF7986CB)),
+    LILAC("lilac", Color(0xFFC5B3E6)),
+    PURPLE("purple", Color(0xFFA68BD8)),
+    SILVER("silver", Color(0xFFB0BEC5)),
+    SLATE("slate", Color(0xFF90A4AE));
+
+    val light: Color get() = color
+    val dark: Color get() = color
 
     @Composable
-    fun resolve(darkTheme: Boolean = LocalDarkTheme.current): Color = if (darkTheme) dark else light
+    @Suppress("UNUSED_PARAMETER")
+    fun resolve(darkTheme: Boolean = LocalDarkTheme.current): Color = color
 
     companion object {
-        val Default = EVERGREEN
+        val Default = PERIWINKLE
 
-        fun fromKey(key: String?): HabitColor = entries.firstOrNull { it.key == key } ?: Default
+        /** Keys used by earlier versions of the app. */
+        private val legacy = mapOf(
+            "evergreen" to TEAL,
+            "ocean" to SKY,
+            "violet" to PURPLE,
+            "olive" to MINT,
+        )
+
+        fun fromKey(key: String?): HabitColor =
+            entries.firstOrNull { it.key == key } ?: legacy[key] ?: Default
     }
 }
+
+/** Text colour for content drawn on a pastel habit/list colour. */
+val OnPastel = Color(0xFF111111)

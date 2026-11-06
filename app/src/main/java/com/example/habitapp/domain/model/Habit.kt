@@ -23,7 +23,17 @@ enum class HabitType {
     val isMeasurable: Boolean get() = this == NUMERIC || this == DURATION || this == COUNT
 }
 
+/**
+ * Which days a habit is expected on. TIMES_PER_WEEK / TIMES_PER_MONTH are legacy (schema v1)
+ * values; they are migrated to [GoalPeriod.WEEK] / [GoalPeriod.MONTH] goals.
+ */
 enum class FrequencyType { DAILY, WEEKDAYS, TIMES_PER_WEEK, TIMES_PER_MONTH }
+
+/** The period a habit's target applies to: "at least 2 litres per DAY", "5 times per WEEK"… */
+enum class GoalPeriod { DAY, WEEK, MONTH, YEAR }
+
+/** AT_LEAST builds a habit (reach the target); AT_MOST limits one (stay at or under it). */
+enum class GoalType { AT_LEAST, AT_MOST }
 
 data class HabitFrequency(
     val type: FrequencyType = FrequencyType.DAILY,
@@ -44,6 +54,11 @@ data class Habit(
     val target: Double = 1.0,
     val step: Double = 1.0,
     val frequency: HabitFrequency = HabitFrequency(),
+    val goalPeriod: GoalPeriod = GoalPeriod.DAY,
+    val goalType: GoalType = GoalType.AT_LEAST,
+    val listId: String? = null,
+    val priority: Int = 0,
+    val timerMinutes: Int? = null,
     val startDate: LocalDate,
     val endDate: LocalDate? = null,
     val groupId: String? = null,
@@ -52,8 +67,15 @@ data class Habit(
     val quitStartedAt: Instant? = null,
     val createdAt: Instant,
 ) {
-    /** Boolean and quit habits always have a target of one completion per day. */
-    val effectiveTarget: Double get() = if (type == HabitType.BOOLEAN || type == HabitType.QUIT) 1.0 else target
+    /** Quit habits have no numeric target; everything else uses [target] for its [goalPeriod]. */
+    val effectiveTarget: Double get() = if (type == HabitType.QUIT) 1.0 else target
+
+    /** Day-level target used to decide whether a single day is "done". */
+    val dailyTarget: Double get() = if (goalPeriod == GoalPeriod.DAY) effectiveTarget else step.coerceAtLeast(MIN_STEP)
+
+    private companion object {
+        const val MIN_STEP = 1e-6
+    }
 }
 
 data class HabitActivity(
@@ -100,8 +122,11 @@ data class DayProgress(
     val target: Double,
     val skipped: Boolean,
     val entryCount: Int,
+    /** For limit (AT_MOST) habits a day is "done" while the total stays within the target. */
+    val atMost: Boolean = false,
 ) {
-    val completed: Boolean get() = !skipped && target > 0 && total >= target - EPSILON
+    val completed: Boolean
+        get() = !skipped && target > 0 && if (atMost) total <= target + EPSILON else total >= target - EPSILON
     val fraction: Float get() = if (target <= 0) 0f else (total / target).toFloat().coerceIn(0f, 1f)
 
     companion object {

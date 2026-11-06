@@ -75,7 +75,7 @@ data class BackupFile(
 ) {
     companion object {
         const val FORMAT_ID = "steady-backup"
-        const val CURRENT_VERSION = 1
+        const val CURRENT_VERSION = 2
     }
 }
 

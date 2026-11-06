@@ -2,6 +2,8 @@ package com.example.habitapp.domain.util
 
 import com.example.habitapp.domain.model.DayProgress
 import com.example.habitapp.domain.model.FrequencyType
+import com.example.habitapp.domain.model.GoalPeriod
+import com.example.habitapp.domain.model.GoalType
 import com.example.habitapp.domain.model.Habit
 import com.example.habitapp.domain.model.HabitActivity
 import com.example.habitapp.domain.model.HabitType
@@ -13,21 +15,48 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 
-enum class StreakUnit { DAY, WEEK, MONTH }
+enum class StreakUnit { DAY, WEEK, MONTH, YEAR }
 
 data class StreakInfo(val current: Int, val longest: Int, val unit: StreakUnit)
 
+/** A finished or ongoing run of consecutive successful periods. */
+data class StreakRun(val start: LocalDate, val end: LocalDate, val length: Int)
+
 data class HabitStats(
     val streak: StreakInfo,
-    /** 0..1 share of evaluated scheduled days (or periods) that were completed. */
+    /** 0..1 share of evaluated scheduled days (or periods) that met the goal. */
     val completionRate: Float,
+    /** Number of days (DAY goals) or periods (longer goals) that met the goal. */
     val totalCompletions: Int,
     val totalValue: Double,
     /** Average value on days that have at least one entry. */
     val averageValue: Double,
     /** Highest single-day total (personal record). */
     val bestDayValue: Double,
+    val activityCount: Int,
 )
+
+/** Progress toward the goal for the period (day/week/month/year) containing a date. */
+data class PeriodProgress(
+    val start: LocalDate,
+    val end: LocalDate,
+    val total: Double,
+    val target: Double,
+    val goalType: GoalType,
+    /** True while the period has not finished yet. */
+    val ongoing: Boolean,
+) {
+    private val epsilon = 1e-9
+
+    /** AT_LEAST: target reached. AT_MOST: still within the limit. */
+    val met: Boolean
+        get() = if (goalType == GoalType.AT_MOST) total <= target + epsilon else total >= target - epsilon
+
+    /** AT_MOST goals that went over the limit. */
+    val exceeded: Boolean get() = goalType == GoalType.AT_MOST && total > target + epsilon
+
+    val fraction: Float get() = if (target <= 0) 0f else (total / target).toFloat().coerceIn(0f, 1f)
+}
 
 /** Pure business rules for habit scheduling, progress, streaks and statistics. */
 object HabitCalculator {
@@ -35,15 +64,12 @@ object HabitCalculator {
     fun isActiveOn(habit: Habit, date: LocalDate): Boolean =
         !date.isBefore(habit.startDate) && (habit.endDate == null || !date.isAfter(habit.endDate))
 
-    /**
-     * Whether a habit is expected on [date]. Flexible (N per week/month) habits are
-     * available every active day; quit habits are tracked continuously.
-     */
+    /** Whether a habit is expected on [date] (active and, for specific weekdays, on one of them). */
     fun isScheduledOn(habit: Habit, date: LocalDate): Boolean {
         if (!isActiveOn(habit, date)) return false
         return when (habit.frequency.type) {
             FrequencyType.WEEKDAYS -> date.dayOfWeek in habit.frequency.weekdays
-            FrequencyType.DAILY, FrequencyType.TIMES_PER_WEEK, FrequencyType.TIMES_PER_MONTH -> true
+            else -> true
         }
     }
 
@@ -56,48 +82,74 @@ object HabitCalculator {
     fun dayProgress(habit: Habit, date: LocalDate, entries: List<HabitActivity>): DayProgress {
         val valueEntries = entries.filter { !it.skipped }
         val total = valueEntries.sumOf { it.value }.coerceAtLeast(0.0)
-        // The target in force when the day was logged; falls back to the current target.
-        val target = valueEntries.maxByOrNull { it.loggedAt }?.targetSnapshot?.takeIf { it > 0 }
-            ?: habit.effectiveTarget
+        // DAY goals keep the target in force when the day was logged, so goal edits never rewrite history.
+        val target = if (habit.goalPeriod == GoalPeriod.DAY) {
+            valueEntries.maxByOrNull { it.loggedAt }?.targetSnapshot?.takeIf { it > 0 } ?: habit.dailyTarget
+        } else {
+            habit.dailyTarget
+        }
         val hasSkip = entries.any { it.skipped }
+        val atMost = habit.goalType == GoalType.AT_MOST && habit.goalPeriod == GoalPeriod.DAY
+        val reached = if (atMost) total <= target else total >= target
         return DayProgress(
             date = date,
             total = total,
             target = target,
-            skipped = hasSkip && total < target,
+            skipped = hasSkip && !(reached && total > 0),
             entryCount = valueEntries.size,
+            atMost = atMost,
         )
     }
 
-    fun emptyProgress(habit: Habit, date: LocalDate) =
-        DayProgress(date = date, total = 0.0, target = habit.effectiveTarget, skipped = false, entryCount = 0)
+    fun emptyProgress(habit: Habit, date: LocalDate) = DayProgress(
+        date = date,
+        total = 0.0,
+        target = habit.dailyTarget,
+        skipped = false,
+        entryCount = 0,
+        atMost = habit.goalType == GoalType.AT_MOST && habit.goalPeriod == GoalPeriod.DAY,
+    )
 
-    fun periodStart(date: LocalDate, type: FrequencyType, firstDayOfWeek: DayOfWeek): LocalDate = when (type) {
-        FrequencyType.TIMES_PER_MONTH -> date.withDayOfMonth(1)
-        else -> date.with(TemporalAdjusters.previousOrSame(firstDayOfWeek))
+    private fun Map<LocalDate, DayProgress>.dayOf(habit: Habit, date: LocalDate) = this[date] ?: emptyProgress(habit, date)
+
+    fun periodStart(date: LocalDate, period: GoalPeriod, firstDayOfWeek: DayOfWeek): LocalDate = when (period) {
+        GoalPeriod.DAY -> date
+        GoalPeriod.WEEK -> date.with(TemporalAdjusters.previousOrSame(firstDayOfWeek))
+        GoalPeriod.MONTH -> date.withDayOfMonth(1)
+        GoalPeriod.YEAR -> date.withDayOfYear(1)
     }
 
-    fun periodEnd(start: LocalDate, type: FrequencyType): LocalDate = when (type) {
-        FrequencyType.TIMES_PER_MONTH -> start.plusMonths(1).minusDays(1)
-        else -> start.plusDays(6)
+    fun periodEnd(start: LocalDate, period: GoalPeriod): LocalDate = when (period) {
+        GoalPeriod.DAY -> start
+        GoalPeriod.WEEK -> start.plusDays(6)
+        GoalPeriod.MONTH -> start.plusMonths(1).minusDays(1)
+        GoalPeriod.YEAR -> start.plusYears(1).minusDays(1)
     }
 
-    /** Completed days in the week/month that contains [date], up to and including [date]'s period end. */
-    fun completionsInPeriod(
+    private fun nextPeriod(start: LocalDate, period: GoalPeriod): LocalDate = periodEnd(start, period).plusDays(1)
+
+    fun periodProgress(
         habit: Habit,
         progress: Map<LocalDate, DayProgress>,
         date: LocalDate,
         firstDayOfWeek: DayOfWeek,
-    ): Int {
-        val start = periodStart(date, habit.frequency.type, firstDayOfWeek)
-        val end = periodEnd(start, habit.frequency.type)
-        return progress.values.count { it.completed && !it.date.isBefore(start) && !it.date.isAfter(end) }
+        today: LocalDate,
+    ): PeriodProgress {
+        val start = periodStart(date, habit.goalPeriod, firstDayOfWeek)
+        val end = periodEnd(start, habit.goalPeriod)
+        val total = if (habit.goalPeriod == GoalPeriod.DAY) {
+            progress[date]?.total ?: 0.0
+        } else {
+            progress.values.filter { !it.date.isBefore(start) && !it.date.isAfter(end) }.sumOf { it.total }
+        }
+        val target = if (habit.goalPeriod == GoalPeriod.DAY) progress.dayOf(habit, date).target else habit.effectiveTarget
+        return PeriodProgress(start, end, total, target, habit.goalType, ongoing = !end.isBefore(today))
     }
 
     /**
      * Whether the habit counts toward the daily completion percentage on [date].
-     * Flexible habits count only while their period quota is still open (or when done that day).
-     * Quit habits are excluded: they are tracked as elapsed time, not as a daily task.
+     * Longer goals count only while still open (or when worked on that day); quit habits
+     * are tracked as elapsed time and never count.
      */
     fun countsTowardDailyProgress(
         habit: Habit,
@@ -106,79 +158,150 @@ object HabitCalculator {
         firstDayOfWeek: DayOfWeek,
     ): Boolean {
         if (habit.archived || habit.type == HabitType.QUIT || !isScheduledOn(habit, date)) return false
-        if (!habit.frequency.isFlexible) return true
-        if (progress[date]?.completed == true) return true
-        val start = periodStart(date, habit.frequency.type, firstDayOfWeek)
-        val doneBefore = progress.values.count { it.completed && !it.date.isBefore(start) && it.date.isBefore(date) }
-        return doneBefore < habit.frequency.timesPerPeriod
+        if (habit.goalPeriod == GoalPeriod.DAY) return true
+        if (habit.goalType == GoalType.AT_MOST) return false
+        if ((progress[date]?.total ?: 0.0) > 0) return true
+        val start = periodStart(date, habit.goalPeriod, firstDayOfWeek)
+        val before = progress.values.filter { !it.date.isBefore(start) && it.date.isBefore(date) }.sumOf { it.total }
+        return before < habit.effectiveTarget
     }
 
+    /** Whether the habit is "done" for [date]: the day goal, or the period goal for longer goals. */
+    fun isDone(
+        habit: Habit,
+        progress: Map<LocalDate, DayProgress>,
+        date: LocalDate,
+        firstDayOfWeek: DayOfWeek,
+        today: LocalDate,
+    ): Boolean = if (habit.goalPeriod == GoalPeriod.DAY) {
+        progress.dayOf(habit, date).completed
+    } else {
+        val p = periodProgress(habit, progress, date, firstDayOfWeek, today)
+        if (habit.goalType == GoalType.AT_MOST) !p.exceeded else p.met
+    }
+
+    /** Legacy flexible habits (pre-v2 data that was not migrated) behave like weekly/monthly goals. */
+    private fun normalized(habit: Habit): Habit = when (habit.frequency.type) {
+        FrequencyType.TIMES_PER_WEEK -> habit.copy(goalPeriod = GoalPeriod.WEEK, frequency = habit.frequency.copy(type = FrequencyType.DAILY))
+        FrequencyType.TIMES_PER_MONTH -> habit.copy(goalPeriod = GoalPeriod.MONTH, frequency = habit.frequency.copy(type = FrequencyType.DAILY))
+        else -> habit
+    }
+
+    private enum class Outcome { MET, MISSED, NEUTRAL }
+
+    /** Outcome of each evaluable day or period in chronological order. */
+    private fun outcomes(
+        raw: Habit,
+        progress: Map<LocalDate, DayProgress>,
+        today: LocalDate,
+        firstDayOfWeek: DayOfWeek,
+    ): List<Pair<LocalDate, Outcome>> {
+        val habit = normalized(raw)
+        val last = minOf(today, habit.endDate ?: today)
+        val result = mutableListOf<Pair<LocalDate, Outcome>>()
+        if (habit.goalPeriod == GoalPeriod.DAY) {
+            var date = habit.startDate
+            while (!date.isAfter(last)) {
+                if (isScheduledOn(habit, date)) {
+                    val day = progress.dayOf(habit, date)
+                    val outcome = when {
+                        day.skipped -> Outcome.NEUTRAL
+                        habit.goalType == GoalType.AT_MOST -> when {
+                            !day.completed -> Outcome.MISSED
+                            date == today -> Outcome.NEUTRAL
+                            else -> Outcome.MET
+                        }
+                        day.completed -> Outcome.MET
+                        date == today -> Outcome.NEUTRAL
+                        else -> Outcome.MISSED
+                    }
+                    result += date to outcome
+                }
+                date = date.plusDays(1)
+            }
+        } else {
+            var start = periodStart(habit.startDate, habit.goalPeriod, firstDayOfWeek)
+            while (!start.isAfter(last)) {
+                val p = periodProgress(habit, progress, start, firstDayOfWeek, today)
+                val outcome = when {
+                    habit.goalType == GoalType.AT_MOST -> when {
+                        p.exceeded -> Outcome.MISSED
+                        p.ongoing -> Outcome.NEUTRAL
+                        else -> Outcome.MET
+                    }
+                    p.met -> Outcome.MET
+                    p.ongoing -> Outcome.NEUTRAL
+                    else -> Outcome.MISSED
+                }
+                result += start to outcome
+                start = nextPeriod(start, habit.goalPeriod)
+            }
+        }
+        return result
+    }
+
+    private fun unitOf(habit: Habit): StreakUnit = when (normalized(habit).goalPeriod) {
+        GoalPeriod.DAY -> StreakUnit.DAY
+        GoalPeriod.WEEK -> StreakUnit.WEEK
+        GoalPeriod.MONTH -> StreakUnit.MONTH
+        GoalPeriod.YEAR -> StreakUnit.YEAR
+    }
+
+    /**
+     * Streak over scheduled days (DAY goals) or periods (longer goals). Unscheduled days are
+     * ignored, skipped days are neutral, and an unfinished today/period never breaks the streak.
+     */
     fun streak(
         habit: Habit,
         progress: Map<LocalDate, DayProgress>,
         today: LocalDate,
         firstDayOfWeek: DayOfWeek,
-    ): StreakInfo = when {
-        habit.type == HabitType.QUIT -> StreakInfo(0, 0, StreakUnit.DAY)
-        habit.frequency.isFlexible -> periodStreak(habit, progress, today, firstDayOfWeek)
-        else -> dayStreak(habit, progress, today)
-    }
-
-    /**
-     * Streak over scheduled days only. Unscheduled days are ignored, skipped days neither
-     * count nor break, and today being incomplete does not break the streak yet.
-     */
-    private fun dayStreak(habit: Habit, progress: Map<LocalDate, DayProgress>, today: LocalDate): StreakInfo {
+    ): StreakInfo {
+        if (habit.type == HabitType.QUIT) return StreakInfo(0, 0, StreakUnit.DAY)
         var run = 0
         var best = 0
-        var date = habit.startDate
-        val last = minOf(today, habit.endDate ?: today)
-        while (!date.isAfter(last)) {
-            if (isScheduledOn(habit, date)) {
-                val day = progress[date]
-                when {
-                    day?.completed == true -> {
-                        run++
-                        best = maxOf(best, run)
-                    }
-                    day?.skipped == true -> Unit
-                    date == today -> Unit
-                    else -> run = 0
+        outcomes(habit, progress, today, firstDayOfWeek).forEach { (_, outcome) ->
+            when (outcome) {
+                Outcome.MET -> {
+                    run++
+                    best = maxOf(best, run)
                 }
+                Outcome.MISSED -> run = 0
+                Outcome.NEUTRAL -> Unit
             }
-            date = date.plusDays(1)
         }
-        return StreakInfo(current = run, longest = best, unit = StreakUnit.DAY)
+        return StreakInfo(current = run, longest = best, unit = unitOf(habit))
     }
 
-    /** Streak in consecutive weeks/months whose quota was met; the current period is pending. */
-    private fun periodStreak(
+    /** Every streak run (longest first), for the "all streaks" history. */
+    fun streakRuns(
         habit: Habit,
         progress: Map<LocalDate, DayProgress>,
         today: LocalDate,
         firstDayOfWeek: DayOfWeek,
-    ): StreakInfo {
-        val type = habit.frequency.type
-        val unit = if (type == FrequencyType.TIMES_PER_MONTH) StreakUnit.MONTH else StreakUnit.WEEK
-        val currentPeriod = periodStart(today, type, firstDayOfWeek)
-        var start = periodStart(habit.startDate, type, firstDayOfWeek)
-        var run = 0
-        var best = 0
-        val completedDates = progress.values.filter { it.completed }.map { it.date }
-        while (!start.isAfter(currentPeriod)) {
-            val end = periodEnd(start, type)
-            val count = completedDates.count { !it.isBefore(start) && !it.isAfter(end) }
-            when {
-                count >= habit.frequency.timesPerPeriod -> {
-                    run++
-                    best = maxOf(best, run)
+    ): List<StreakRun> {
+        if (habit.type == HabitType.QUIT) return emptyList()
+        val runs = mutableListOf<StreakRun>()
+        var start: LocalDate? = null
+        var end: LocalDate? = null
+        var length = 0
+        outcomes(habit, progress, today, firstDayOfWeek).forEach { (date, outcome) ->
+            when (outcome) {
+                Outcome.MET -> {
+                    if (start == null) start = date
+                    end = date
+                    length++
                 }
-                start == currentPeriod -> Unit
-                else -> run = 0
+                Outcome.MISSED -> {
+                    if (start != null) runs += StreakRun(start!!, end!!, length)
+                    start = null
+                    length = 0
+                }
+                Outcome.NEUTRAL -> Unit
             }
-            start = if (type == FrequencyType.TIMES_PER_MONTH) start.plusMonths(1) else start.plusWeeks(1)
         }
-        return StreakInfo(current = run, longest = best, unit = unit)
+        if (start != null) runs += StreakRun(start!!, end!!, length)
+        return runs.sortedWith(compareByDescending<StreakRun> { it.length }.thenByDescending { it.end })
     }
 
     fun completionRate(
@@ -187,42 +310,9 @@ object HabitCalculator {
         today: LocalDate,
         firstDayOfWeek: DayOfWeek,
     ): Float {
-        if (habit.frequency.isFlexible) {
-            val type = habit.frequency.type
-            val currentPeriod = periodStart(today, type, firstDayOfWeek)
-            var start = periodStart(habit.startDate, type, firstDayOfWeek)
-            var met = 0
-            var evaluated = 0
-            val completedDates = progress.values.filter { it.completed }.map { it.date }
-            while (!start.isAfter(currentPeriod)) {
-                val end = periodEnd(start, type)
-                val ok = completedDates.count { !it.isBefore(start) && !it.isAfter(end) } >= habit.frequency.timesPerPeriod
-                if (ok) met++
-                if (ok || start != currentPeriod) evaluated++
-                start = if (type == FrequencyType.TIMES_PER_MONTH) start.plusMonths(1) else start.plusWeeks(1)
-            }
-            return if (evaluated == 0) 0f else met.toFloat() / evaluated
-        }
-        var done = 0
-        var evaluated = 0
-        var date = habit.startDate
-        val last = minOf(today, habit.endDate ?: today)
-        while (!date.isAfter(last)) {
-            if (isScheduledOn(habit, date)) {
-                val day = progress[date]
-                when {
-                    day?.completed == true -> {
-                        done++
-                        evaluated++
-                    }
-                    day?.skipped == true -> Unit
-                    date == today -> Unit
-                    else -> evaluated++
-                }
-            }
-            date = date.plusDays(1)
-        }
-        return if (evaluated == 0) 0f else done.toFloat() / evaluated
+        val evaluated = outcomes(habit, progress, today, firstDayOfWeek).filter { it.second != Outcome.NEUTRAL }
+        if (evaluated.isEmpty()) return 0f
+        return evaluated.count { it.second == Outcome.MET }.toFloat() / evaluated.size
     }
 
     fun stats(
@@ -233,13 +323,15 @@ object HabitCalculator {
     ): HabitStats {
         val progress = progressByDay(habit, activities)
         val daysWithValues = progress.values.filter { it.entryCount > 0 }
+        val outcomes = outcomes(habit, progress, today, firstDayOfWeek)
         return HabitStats(
             streak = streak(habit, progress, today, firstDayOfWeek),
             completionRate = completionRate(habit, progress, today, firstDayOfWeek),
-            totalCompletions = progress.values.count { it.completed },
+            totalCompletions = outcomes.count { it.second == Outcome.MET },
             totalValue = daysWithValues.sumOf { it.total },
             averageValue = if (daysWithValues.isEmpty()) 0.0 else daysWithValues.sumOf { it.total } / daysWithValues.size,
             bestDayValue = daysWithValues.maxOfOrNull { it.total } ?: 0.0,
+            activityCount = activities.count { it.habitId == habit.id && !it.skipped },
         )
     }
 }

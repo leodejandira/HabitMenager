@@ -84,7 +84,7 @@ import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
 data class RoutineWithSteps(val routine: Routine, val steps: List<HabitDayItem>) {
-    val completed: Int get() = steps.count { it.progress.completed }
+    val completed: Int get() = steps.count { it.done }
 }
 
 @HiltViewModel
@@ -254,7 +254,7 @@ fun RoutineRunScreen(onBack: () -> Unit, onOpenHabit: (String) -> Unit, onTimer:
             FullScreenLoading(Modifier.padding(padding))
             return@Scaffold
         }
-        val nextStep = current.steps.firstOrNull { !it.progress.completed && it.habit.type != HabitType.QUIT }
+        val nextStep = current.steps.firstOrNull { !it.done && it.habit.type != HabitType.QUIT }
         LazyColumn(contentPadding = PaddingValues(top = padding.calculateTopPadding(), bottom = 32.dp)) {
             item(key = "summary") {
                 Column(Modifier.padding(HabitTheme.spacing.screenHorizontal)) {

@@ -25,4 +25,9 @@
         <item quantity="many">%d tarefas</item>
         <item quantity="other">%d tarefas</item>
     </plurals>
+    <plurals name="streak_years">
+        <item quantity="one">%d ano</item>
+        <item quantity="many">%d anos</item>
+        <item quantity="other">%d anos</item>
+    </plurals>
 </resources>

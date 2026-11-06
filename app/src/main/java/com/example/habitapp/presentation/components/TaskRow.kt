@@ -32,7 +32,7 @@ import java.time.LocalDate
 @Composable
 fun priorityColor(priority: TaskPriority): Color = when (priority) {
     TaskPriority.NONE -> Color.Transparent
-    TaskPriority.LOW -> HabitColor.OCEAN.resolve()
+    TaskPriority.LOW -> HabitColor.PERIWINKLE.resolve()
     TaskPriority.MEDIUM -> HabitColor.AMBER.resolve()
     TaskPriority.HIGH -> HabitColor.CORAL.resolve()
     TaskPriority.URGENT -> MaterialTheme.colorScheme.error

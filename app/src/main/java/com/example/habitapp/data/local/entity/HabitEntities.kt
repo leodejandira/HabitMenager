@@ -33,7 +33,7 @@ data class HabitGroupEntity(
             onDelete = ForeignKey.SET_NULL,
         ),
     ],
-    indices = [Index("groupId"), Index("archived", "sortOrder")],
+    indices = [Index("groupId"), Index("archived", "sortOrder"), Index("listId")],
 )
 data class HabitEntity(
     @PrimaryKey val id: String,
@@ -58,6 +58,18 @@ data class HabitEntity(
     val quitStartedAt: Long?,
     val createdAt: Long,
     val updatedAt: Long,
+    /** DAY, WEEK, MONTH or YEAR: the period [targetValue] applies to (added in schema v2). */
+    @ColumnInfo(defaultValue = "DAY")
+    val goalPeriod: String = "DAY",
+    /** AT_LEAST (build a habit) or AT_MOST (limit a habit). */
+    @ColumnInfo(defaultValue = "AT_LEAST")
+    val goalType: String = "AT_LEAST",
+    /** Optional task list the habit belongs to; cleared when the list is deleted. */
+    val listId: String? = null,
+    @ColumnInfo(defaultValue = "0")
+    val priority: Int = 0,
+    /** Default countdown length for this habit's timer. */
+    val timerMinutes: Int? = null,
 )
 
 @Serializable

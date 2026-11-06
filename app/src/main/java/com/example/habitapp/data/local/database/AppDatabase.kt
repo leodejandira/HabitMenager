@@ -3,8 +3,10 @@ package com.example.habitapp.data.local.database
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.habitapp.R
@@ -43,6 +45,7 @@ import java.util.UUID
     ],
     version = AppDatabase.VERSION,
     exportSchema = true,
+    autoMigrations = [AutoMigration(from = 1, to = 2, spec = Migration1To2::class)],
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun habitDao(): HabitDao
@@ -51,27 +54,45 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun backupDao(): BackupDao
 
     companion object {
-        const val VERSION = 1
+        const val VERSION = 2
         const val NAME = "steady.db"
 
         /**
-         * Schema migrations. Version 1 is the first released schema; every later
-         * version must add a Migration here (destructive fallback is never enabled,
-         * so user data is never silently dropped).
+         * Manual migrations (automatic ones are declared on @Database). Destructive
+         * fallback is never enabled, so user data is never silently dropped.
          */
         val MIGRATIONS = emptyArray<Migration>()
     }
 }
 
+/**
+ * v1 -> v2: adds period goals, limit goals, list/priority/timer on habits and list icons.
+ * "N times per week/month" habits become weekly/monthly goals with the same total.
+ */
+class Migration1To2 : AutoMigrationSpec {
+    override fun onPostMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "UPDATE habits SET goalPeriod = 'WEEK', targetValue = CASE WHEN type = 'BOOLEAN' THEN timesPerPeriod ELSE targetValue * timesPerPeriod END, " +
+                "frequencyType = 'DAILY' WHERE frequencyType = 'TIMES_PER_WEEK'",
+        )
+        db.execSQL(
+            "UPDATE habits SET goalPeriod = 'MONTH', targetValue = CASE WHEN type = 'BOOLEAN' THEN timesPerPeriod ELSE targetValue * timesPerPeriod END, " +
+                "frequencyType = 'DAILY' WHERE frequencyType = 'TIMES_PER_MONTH'",
+        )
+        db.execSQL("UPDATE task_lists SET icon = '📥' WHERE isInbox = 1 AND icon = ''")
+        db.execSQL("UPDATE task_lists SET icon = '📋' WHERE icon = ''")
+    }
+}
+
 /** The predefined task lists, localized with the current app language. */
 fun defaultTaskLists(context: Context, now: Long): List<TaskListEntity> = listOf(
-    Triple(R.string.list_inbox, "slate", true),
-    Triple(R.string.list_personal, "evergreen", false),
-    Triple(R.string.list_work, "indigo", false),
-    Triple(R.string.list_shopping, "amber", false),
-    Triple(R.string.list_errands, "coral", false),
-    Triple(R.string.list_other, "violet", false),
-).mapIndexed { index, (nameRes, color, isInbox) ->
+    DefaultList(R.string.list_inbox, "slate", "📥", true),
+    DefaultList(R.string.list_personal, "evergreen", "🙂", false),
+    DefaultList(R.string.list_work, "indigo", "💼", false),
+    DefaultList(R.string.list_shopping, "amber", "🛒", false),
+    DefaultList(R.string.list_errands, "coral", "🏃", false),
+    DefaultList(R.string.list_other, "violet", "📋", false),
+).mapIndexed { index, (nameRes, color, icon, isInbox) ->
     TaskListEntity(
         id = UUID.randomUUID().toString(),
         name = context.getString(nameRes),
@@ -80,8 +101,11 @@ fun defaultTaskLists(context: Context, now: Long): List<TaskListEntity> = listOf
         archived = false,
         isInbox = isInbox,
         createdAt = now + index,
+        icon = icon,
     )
 }
+
+private data class DefaultList(val nameRes: Int, val color: String, val icon: String, val isInbox: Boolean)
 
 /** Seeds the predefined task lists when the database is first created. */
 class SeedDatabaseCallback(private val context: Context) : RoomDatabase.Callback() {
@@ -96,6 +120,7 @@ class SeedDatabaseCallback(private val context: Context) : RoomDatabase.Callback
                 put("archived", 0)
                 put("isInbox", if (list.isInbox) 1 else 0)
                 put("createdAt", list.createdAt)
+                put("icon", list.icon)
             }
             db.insert("task_lists", SQLiteDatabase.CONFLICT_ABORT, values)
         }

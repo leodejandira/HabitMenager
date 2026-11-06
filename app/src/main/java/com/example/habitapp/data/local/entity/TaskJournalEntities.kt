@@ -1,5 +1,6 @@
 package com.example.habitapp.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -20,6 +21,9 @@ data class TaskListEntity(
     /** The Inbox list cannot be deleted; tasks of a deleted list move there. */
     val isInbox: Boolean,
     val createdAt: Long,
+    /** Emoji shown next to the list (added in schema v2). */
+    @ColumnInfo(defaultValue = "")
+    val icon: String = "",
 )
 
 @Serializable

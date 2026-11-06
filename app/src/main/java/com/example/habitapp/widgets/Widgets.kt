@@ -151,11 +151,11 @@ private fun TodayHabitsContent(context: Context, overview: DayOverview?) {
 @Composable
 private fun HabitWidgetRow(item: HabitDayItem) {
     val habit = item.habit
-    val done = item.progress.completed
+    val done = item.done
     val status = when {
         habit.type == HabitType.QUIT -> "${item.quit?.elapsed?.toDays() ?: 0}d"
         habit.type == HabitType.BOOLEAN -> if (done) "✓" else "○"
-        else -> "${formatAmount(item.progress.total)}/${formatAmount(item.progress.target)}" + if (done) " ✓" else ""
+        else -> "${formatAmount(item.period.total)}/${formatAmount(item.period.target)}" + if (done) " ✓" else ""
     }
     val clickable = habit.type != HabitType.QUIT
     val base = GlanceModifier.fillMaxWidth().padding(vertical = 6.dp)

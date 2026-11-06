@@ -53,7 +53,8 @@ class MainActivity : ComponentActivity() {
                 onDispose { }
             }
 
-            HabitTheme(darkTheme = darkTheme, dynamicColor = dynamicColor) {
+            val fontScale = (uiState as? MainUiState.Ready)?.fontScale ?: 1f
+            HabitTheme(darkTheme = darkTheme, dynamicColor = dynamicColor, fontScale = fontScale) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     // Preferences load from disk in a few milliseconds; drawing the app only
                     // afterwards avoids a flash of the wrong theme.

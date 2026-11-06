@@ -11,6 +11,7 @@ import com.example.habitapp.domain.repository.TaskData
 import com.example.habitapp.domain.repository.TaskRepository
 import com.example.habitapp.domain.repository.UserPreferencesRepository
 import com.example.habitapp.domain.util.HabitCalculator
+import com.example.habitapp.domain.util.PeriodProgress
 import com.example.habitapp.domain.util.QuitCalculator
 import com.example.habitapp.domain.util.QuitStatus
 import com.example.habitapp.domain.util.StreakInfo
@@ -28,10 +29,14 @@ data class HabitDayItem(
     val habit: Habit,
     val progress: DayProgress,
     val streak: StreakInfo,
-    /** Completed days in the habit's week/month (flexible habits). */
-    val periodCompletions: Int,
+    /** Progress toward the goal for the habit's period (equals the day for daily goals). */
+    val period: PeriodProgress,
+    /** Goal reached for the day / period (limit goals: still within the limit). */
+    val done: Boolean,
     val countsTowardProgress: Boolean,
     val quit: QuitStatus?,
+    /** Per-day progress, used by the weekly/monthly/yearly habit displays. */
+    val history: Map<LocalDate, DayProgress> = emptyMap(),
 )
 
 data class DayOverview(
@@ -42,7 +47,7 @@ data class DayOverview(
 ) {
     private val counted = habits.filter { it.countsTowardProgress }
     val totalHabits: Int get() = counted.size
-    val completedHabits: Int get() = counted.count { it.progress.completed }
+    val completedHabits: Int get() = counted.count { it.done }
     val totalTasks: Int get() = tasks.size
     val completedTasks: Int get() = tasks.count { it.completed }
 
@@ -143,7 +148,9 @@ class BuildDayOverviewUseCase @Inject constructor(
                     habit = habit,
                     progress = progress[date] ?: HabitCalculator.emptyProgress(habit, date),
                     streak = HabitCalculator.streak(habit, progress, today, firstDayOfWeek),
-                    periodCompletions = HabitCalculator.completionsInPeriod(habit, progress, date, firstDayOfWeek),
+                    period = HabitCalculator.periodProgress(habit, progress, date, firstDayOfWeek, today),
+                    done = HabitCalculator.isDone(habit, progress, date, firstDayOfWeek, today),
+                    history = progress,
                     countsTowardProgress = HabitCalculator.countsTowardDailyProgress(habit, progress, date, firstDayOfWeek),
                     quit = if (habit.type == HabitType.QUIT) {
                         QuitCalculator.status(habit, habitActivities, time.nowInstant(), time.zone())

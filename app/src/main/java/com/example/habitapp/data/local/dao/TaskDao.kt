@@ -41,10 +41,14 @@ interface TaskDao {
     @Query("UPDATE tasks SET listId = :toListId WHERE listId = :fromListId")
     suspend fun moveAllTasks(fromListId: String, toListId: String)
 
-    /** Moves the list's tasks to the inbox, then deletes the list, atomically. */
+    @Query("UPDATE habits SET listId = NULL WHERE listId = :listId")
+    suspend fun detachHabitsFromList(listId: String)
+
+    /** Moves the list's tasks to the inbox, unlinks its habits, then deletes the list, atomically. */
     @Transaction
     suspend fun deleteListMovingTasks(listId: String, inboxId: String) {
         moveAllTasks(listId, inboxId)
+        detachHabitsFromList(listId)
         deleteList(listId)
     }
 

@@ -183,6 +183,7 @@ class TaskRepositoryImpl @Inject constructor(
                 archived = list.archived,
                 isInbox = existing?.isInbox ?: false,
                 createdAt = existing?.createdAt ?: time.nowInstant().toEpochMilli(),
+                icon = list.icon,
             ),
         )
     }

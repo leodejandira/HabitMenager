@@ -92,14 +92,14 @@ class DashboardViewModel @Inject constructor(
             ),
             today = now.toLocalDate(),
             overview = overview.copy(
-                habits = if (preferences.hideCompletedHabits) overview.habits.filter { !it.progress.completed } else overview.habits,
+                habits = if (preferences.hideCompletedHabits) overview.habits.filter { !it.done } else overview.habits,
                 overdueTasks = if (preferences.showOverdueOnToday) overview.overdueTasks else emptyList(),
             ),
-            hiddenCompleted = if (preferences.hideCompletedHabits) overview.habits.count { it.progress.completed } else 0,
+            hiddenCompleted = if (preferences.hideCompletedHabits) overview.habits.count { it.done } else 0,
             fullOverview = overview,
             routines = routines.mapNotNull { routine ->
                 val steps = routine.habitIds.mapNotNull { habitItems[it] }
-                if (steps.isEmpty()) null else RoutineProgress(routine, steps.count { it.progress.completed }, steps.size)
+                if (steps.isEmpty()) null else RoutineProgress(routine, steps.count { it.done }, steps.size)
             },
             hasAnyHabit = habits.any { !it.archived },
         )

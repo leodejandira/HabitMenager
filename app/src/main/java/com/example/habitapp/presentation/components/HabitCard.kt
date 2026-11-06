@@ -64,7 +64,7 @@ class HabitCardActions(
 fun HabitCard(item: HabitDayItem, actions: HabitCardActions, modifier: Modifier = Modifier) {
     val habit = item.habit
     val accent = HabitColor.fromKey(habit.colorKey).resolve()
-    val done = item.progress.completed
+    val done = item.done
     val container by animateColorAsState(
         if (done) accent.copy(alpha = 0.14f) else MaterialTheme.colorScheme.surfaceContainerLow,
         label = "cardColor",
@@ -125,13 +125,12 @@ private fun subtitle(item: HabitDayItem): String {
         HabitType.BOOLEAN -> Unit
         else -> parts += habitProgressText(habit, item.progress.total, item.progress.target)
     }
-    if (habit.frequency.isFlexible) {
-        val res = if (habit.frequency.type == FrequencyType.TIMES_PER_MONTH) R.string.period_month_progress else R.string.period_week_progress
-        parts += stringResource(res, item.periodCompletions, habit.frequency.timesPerPeriod)
+    if (habit.goalPeriod != com.example.habitapp.domain.model.GoalPeriod.DAY) {
+        parts += habitProgressText(habit, item.period.total, item.period.target)
     }
     if (item.streak.current > 0) parts += "🔥 " + streakText(item.streak)
     if (item.progress.skipped) parts += stringResource(R.string.habit_skipped)
-    if (parts.isEmpty()) parts += stringResource(if (item.progress.completed) R.string.habit_done else R.string.habit_not_done)
+    if (parts.isEmpty()) parts += stringResource(if (item.done) R.string.habit_done else R.string.habit_not_done)
     return parts.joinToString(" · ")
 }
 
@@ -153,7 +152,7 @@ private fun HabitQuickActions(item: HabitDayItem, accent: Color, actions: HabitC
     val habit = item.habit
     when (habit.type) {
         HabitType.BOOLEAN -> CheckButton(
-            checked = item.progress.completed,
+            checked = item.done,
             color = accent,
             onClick = { actions.onToggle(habit.id) },
             label = habit.name,

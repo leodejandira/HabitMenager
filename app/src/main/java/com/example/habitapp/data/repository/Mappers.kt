@@ -9,6 +9,8 @@ import com.example.habitapp.data.local.entity.TaskEntity
 import com.example.habitapp.data.local.entity.TaskListEntity
 import com.example.habitapp.data.local.entity.TimerSessionEntity
 import com.example.habitapp.domain.model.FrequencyType
+import com.example.habitapp.domain.model.GoalPeriod
+import com.example.habitapp.domain.model.GoalType
 import com.example.habitapp.domain.model.Habit
 import com.example.habitapp.domain.model.HabitActivity
 import com.example.habitapp.domain.model.HabitFrequency
@@ -58,6 +60,11 @@ fun HabitEntity.toDomain() = Habit(
     archived = archived,
     quitStartedAt = quitStartedAt?.let(Instant::ofEpochMilli),
     createdAt = Instant.ofEpochMilli(createdAt),
+    goalPeriod = enumOrDefault(goalPeriod, GoalPeriod.DAY),
+    goalType = enumOrDefault(goalType, GoalType.AT_LEAST),
+    listId = listId,
+    priority = priority,
+    timerMinutes = timerMinutes,
 )
 
 fun Habit.toEntity(updatedAt: Long) = HabitEntity(
@@ -81,6 +88,11 @@ fun Habit.toEntity(updatedAt: Long) = HabitEntity(
     quitStartedAt = quitStartedAt?.toEpochMilli(),
     createdAt = createdAt.toEpochMilli(),
     updatedAt = updatedAt,
+    goalPeriod = goalPeriod.name,
+    goalType = goalType.name,
+    listId = listId,
+    priority = priority,
+    timerMinutes = timerMinutes,
 )
 
 fun HabitActivityEntity.toDomain() = HabitActivity(
@@ -119,6 +131,7 @@ fun TaskListEntity.toDomain() = TaskList(
     sortOrder = sortOrder,
     archived = archived,
     isInbox = isInbox,
+    icon = icon,
 )
 
 fun TaskEntity.toDomain() = Task(

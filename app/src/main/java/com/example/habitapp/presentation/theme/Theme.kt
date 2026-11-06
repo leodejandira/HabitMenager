@@ -20,6 +20,7 @@ fun supportsDynamicColor(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_COD
 fun HabitTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
+    fontScale: Float = 1f,
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
@@ -37,7 +38,7 @@ fun HabitTheme(
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = AppTypography,
+            typography = if (fontScale == 1f) AppTypography else AppTypography.scaled(fontScale),
             shapes = AppShapes,
             content = content,
         )
@@ -56,3 +57,14 @@ object HabitTheme {
         @ReadOnlyComposable
         get() = LocalDarkTheme.current
 }
+
+private fun androidx.compose.ui.text.TextStyle.scaled(factor: Float) =
+    copy(fontSize = fontSize * factor, lineHeight = lineHeight * factor)
+
+private fun androidx.compose.material3.Typography.scaled(f: Float) = androidx.compose.material3.Typography(
+    displayLarge = displayLarge.scaled(f), displayMedium = displayMedium.scaled(f), displaySmall = displaySmall.scaled(f),
+    headlineLarge = headlineLarge.scaled(f), headlineMedium = headlineMedium.scaled(f), headlineSmall = headlineSmall.scaled(f),
+    titleLarge = titleLarge.scaled(f), titleMedium = titleMedium.scaled(f), titleSmall = titleSmall.scaled(f),
+    bodyLarge = bodyLarge.scaled(f), bodyMedium = bodyMedium.scaled(f), bodySmall = bodySmall.scaled(f),
+    labelLarge = labelLarge.scaled(f), labelMedium = labelMedium.scaled(f), labelSmall = labelSmall.scaled(f),
+)

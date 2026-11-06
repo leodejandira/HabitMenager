@@ -395,7 +395,7 @@ private fun WeekBoard(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                             )
                             Text(
-                                overview.habits.joinToString(" ") { (if (it.progress.completed) "✓" else "·") + it.habit.emoji },
+                                overview.habits.joinToString(" ") { (if (it.done) "✓" else "·") + it.habit.emoji },
                                 style = MaterialTheme.typography.bodySmall,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,

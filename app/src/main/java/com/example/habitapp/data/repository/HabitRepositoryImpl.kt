@@ -7,6 +7,8 @@ import com.example.habitapp.data.local.entity.HabitActivityEntity
 import com.example.habitapp.data.local.entity.HabitGroupEntity
 import com.example.habitapp.data.local.entity.RoutineEntity
 import com.example.habitapp.data.local.entity.TimerSessionEntity
+import com.example.habitapp.domain.model.GoalPeriod
+import com.example.habitapp.domain.model.GoalType
 import com.example.habitapp.domain.model.Habit
 import com.example.habitapp.domain.model.HabitActivity
 import com.example.habitapp.domain.model.HabitGroup
@@ -104,10 +106,12 @@ class HabitRepositoryImpl @Inject constructor(
         db.withTransaction {
             val entries = dao.getActivitiesOn(habitId, date.toEpochDay()).map { it.toDomain() }
             val progress = HabitCalculator.dayProgress(habit, date, entries)
-            if (progress.completed || progress.skipped) {
+            if (progress.total > 0 || progress.skipped) {
                 dao.deleteActivitiesOn(habitId, date.toEpochDay())
             } else {
-                insert(habit, date, habit.effectiveTarget - progress.total, note = null)
+                // Day goals jump straight to the target; longer goals log one step for this day.
+                val amount = if (habit.goalPeriod == GoalPeriod.DAY && habit.goalType == GoalType.AT_LEAST) habit.effectiveTarget else habit.step
+                insert(habit, date, amount, note = null)
             }
         }
     }
@@ -129,7 +133,8 @@ class HabitRepositoryImpl @Inject constructor(
         db.withTransaction {
             val entries = dao.getActivitiesOn(habitId, date.toEpochDay()).map { it.toDomain() }
             val progress = HabitCalculator.dayProgress(habit, date, entries)
-            if (!progress.completed) insert(habit, date, habit.effectiveTarget - progress.total, null)
+            val missing = habit.dailyTarget - progress.total
+            if (habit.goalType == GoalType.AT_LEAST && missing > 0) insert(habit, date, missing, null)
         }
     }
 

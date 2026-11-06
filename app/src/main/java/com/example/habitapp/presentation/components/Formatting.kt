@@ -66,6 +66,7 @@ fun streakText(streak: StreakInfo, count: Int = streak.current): String = when (
     StreakUnit.DAY -> pluralStringResource(R.plurals.streak_days, count, count)
     StreakUnit.WEEK -> pluralStringResource(R.plurals.streak_weeks, count, count)
     StreakUnit.MONTH -> pluralStringResource(R.plurals.streak_months, count, count)
+    StreakUnit.YEAR -> pluralStringResource(R.plurals.streak_years, count, count)
 }
 
 @Composable
