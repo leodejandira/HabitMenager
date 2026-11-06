@@ -79,6 +79,10 @@ class SettingsViewModel @Inject constructor(
 
     fun onHideCompletedToggled(hide: Boolean) = update { preferencesRepository.setHideCompletedHabits(hide) }
 
+    fun onFontSizeSelected(size: com.example.habitapp.domain.model.FontSize) = update { preferencesRepository.setFontSize(size) }
+
+    fun onTimerCountdownToggled(countdown: Boolean) = update { preferencesRepository.setTimerDefaultCountdown(countdown) }
+
     fun onShowOverdueToggled(show: Boolean) = update { preferencesRepository.setShowOverdueOnToday(show) }
 
     fun onExport(uri: String) = runDataOperation {

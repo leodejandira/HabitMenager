@@ -269,6 +269,9 @@ class TimerRepositoryImpl @Inject constructor(
 
     override fun observeActiveTimer(): Flow<TimerSession?> = dao.observeActiveTimer().map { it?.toDomain() }
 
+    override fun observeRecentSessions(limit: Int): Flow<List<TimerSession>> =
+        dao.observeFinishedTimers(limit).map { list -> list.map { it.toDomain() } }
+
     override suspend fun start(habitId: String, mode: TimerMode, countdownMillis: Long?) {
         dao.getActiveTimer()?.let { dao.deleteTimer(it) }
         val now = time.nowInstant().toEpochMilli()

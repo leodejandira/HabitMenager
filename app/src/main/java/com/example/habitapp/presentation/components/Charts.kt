@@ -86,16 +86,30 @@ fun BarChart(
                 )
             }
         }
-        Row(Modifier.fillMaxWidth().padding(top = 4.dp)) {
-            entries.forEach { entry ->
-                Text(
-                    text = entry.label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    modifier = Modifier.weight(1f),
-                )
+        // Labels are centred on their bar and may be wider than it (sparse labels such as day numbers).
+        androidx.compose.ui.layout.Layout(
+            content = {
+                entries.forEach { entry ->
+                    Text(
+                        text = entry.label,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                }
+            },
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+        ) { measurables, constraints ->
+            val loose = constraints.copy(minWidth = 0, minHeight = 0, maxWidth = androidx.compose.ui.unit.Constraints.Infinity)
+            val placeables = measurables.map { it.measure(loose) }
+            val height = placeables.maxOfOrNull { it.height } ?: 0
+            val slot = if (placeables.isEmpty()) 0f else constraints.maxWidth.toFloat() / placeables.size
+            layout(constraints.maxWidth, height) {
+                placeables.forEachIndexed { i, p ->
+                    val x = (i * slot + slot / 2 - p.width / 2f).toInt().coerceIn(0, (constraints.maxWidth - p.width).coerceAtLeast(0))
+                    p.place(x, 0)
+                }
             }
         }
     }

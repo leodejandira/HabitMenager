@@ -405,3 +405,141 @@ widget_summary_desc | Last 7 days completion rate and best streak. | Taxa de con
 widget_completions_week | Completions (7 days) | Conclusões (7 dias)
 widget_no_habits | No habits scheduled today. Tap to open the app. | Nenhum hábito para hoje. Toque para abrir o app.
 widget_error | Couldn't load data. | Não foi possível carregar os dados.
+
+# --- v0.3 HelloHabit-style UI
+achievement_completions | goals met | metas cumpridas
+achievement_habits | habits created | hábitos criados
+achievement_perfect_weeks | perfect weeks | semanas perfeitas
+achievement_streak | day streak | dias de sequência
+achievements_summary | %1$d of %2$d unlocked | %1$d de %2$d desbloqueadas
+achievements_title | Achievements | Conquistas
+action_back | Back | Voltar
+action_decrease | Decrease | Diminuir
+action_increase | Increase | Aumentar
+action_unarchive | Restore | Restaurar
+archived_empty | No archived habits. Archive a habit from its detail screen to hide it without losing its history. | Nenhum hábito arquivado. Arquive um hábito na tela de detalhes para escondê-lo sem perder o histórico.
+color_list_default | List color | Cor da lista
+customize | Customize | Personalizar
+days_all | Every day | Todos os dias
+days_specific | Specific days | Dias específicos
+detail_enter | Log | Registrar
+detail_entries_of_day | Entries of the day | Registros do dia
+detail_log | Records | Registros
+detail_more | More | Mais
+detail_note | Note | Nota
+detail_stats | Statistics | Estatísticas
+detail_track | Track | Acompanhar
+display_compact | Compact | Compacto
+display_monthly | Monthly | Mensal
+display_weekly | Weekly | Semanal
+display_yearly | Yearly | Anual
+drawer_all_habits | All habits | Todos os hábitos
+drawer_all_tasks | All tasks | Todas as tarefas
+drawer_habit_display | Habit display | Exibição de hábitos
+drawer_lists_filters | Lists and filters | Listas e filtros
+drawer_manage_lists | Manage lists | Gerenciar listas
+drawer_more | More | Mais
+drawer_search | Search tasks and habits | Pesquisar tarefas e hábitos
+drawer_today_view | Today | Hoje
+fab_habit | Habit | Hábito
+fab_habit_desc | Build a routine you repeat | Crie uma rotina que se repete
+fab_task | Task | Tarefa
+fab_task_desc | Something to get done | Algo para fazer
+font_default | Default | Padrão
+font_large | Large | Grande
+font_small | Small | Pequena
+goal_at_least | At least | Pelo menos
+goal_at_most | At most | No máximo
+goal_line_at_least | Goal: at least %1$s %2$s per %3$s | Meta: pelo menos %1$s %2$s por %3$s
+goal_line_at_most | Limit: at most %1$s %2$s per %3$s | Limite: no máximo %1$s %2$s por %3$s
+goal_negative | Limit (do less) | Limite (fazer menos)
+goal_per | per | por
+goal_positive | Goal (do more) | Meta (fazer mais)
+goal_reached | Goal reached! | Meta atingida!
+goal_type | Goal type | Tipo de meta
+habit_add_progress | Add progress to %s | Adicionar progresso a %s
+habit_additional_settings | Additional settings | Configurações adicionais
+habit_clear_day | Clear day | Limpar dia
+habit_custom | Custom habit | Hábito personalizado
+habit_description_label | Description | Descrição
+habit_name_hint | e.g. Drink water | ex.: Beber água
+habit_no_list | No list | Sem lista
+habit_no_records | No records yet | Nenhum registro ainda
+habit_records | Records | Recordes
+habit_save | Save habit | Salvar hábito
+habit_search | Search habits | Pesquisar hábitos
+habit_search_hint | Search suggestions | Pesquisar sugestões
+habit_show_suggestions | Show suggestions | Mostrar sugestões
+habit_skip_day | Skip day | Pular dia
+habit_start_label | Start | Início
+habit_step_label | Amount per increment | Quantidade por incremento
+habit_timer_settings | Timer | Temporizador
+habit_try_suggestion | Try a suggestion | Experimente uma sugestão
+help_color | The color identifies the habit on the home screen, calendar and reports. | A cor identifica o hábito na tela inicial, no calendário e nos relatórios.
+help_description | Optional notes about why or how you do this habit. | Notas opcionais sobre por que ou como você faz este hábito.
+help_goal_type | Goal: reach at least the amount. Limit: stay at or below it. | Meta: atingir pelo menos a quantidade. Limite: ficar igual ou abaixo dela.
+help_list | Show this habit inside a list in the menu. | Mostra este hábito dentro de uma lista no menu.
+help_name | A short name you will recognize at a glance. | Um nome curto que você reconheça de relance.
+help_priority | Higher priority habits are shown first. | Hábitos com prioridade maior aparecem primeiro.
+help_quit_start | When you stopped. The counter starts from this moment. | Quando você parou. O contador começa a partir deste momento.
+help_start | The habit is tracked from this date on. | O hábito é acompanhado a partir desta data.
+help_step | How much each tap on + adds. | Quanto cada toque no + adiciona.
+help_timer | Default minutes when opening the timer for this habit. | Minutos padrão ao abrir o temporizador deste hábito.
+help_tracking | Count anything (times, minutes, litres…) or track how long since you quit. | Conte qualquer coisa (vezes, minutos, litros…) ou acompanhe há quanto tempo você parou.
+home_add_first_habit | Add your first habit | Adicione seu primeiro hábito
+home_add_task | Add task | Adicionar tarefa
+home_completed_tasks | Completed | Concluídas
+home_empty_message | Tap + to add a task or a habit. | Toque em + para adicionar uma tarefa ou um hábito.
+home_empty_title | Nothing here yet | Nada por aqui ainda
+home_habit_list | Habits | Hábitos
+home_open_menu | Open menu | Abrir menu
+home_postpone | Postpone | Adiar
+home_task_list | Tasks | Tarefas
+list_choose_icon | Choose icon | Escolher ícone
+log_export | Export CSV | Exportar CSV
+optional | Optional | Opcional
+period_day | Day | Dia
+period_month | Month | Mês
+period_week | Week | Semana
+period_year | Year | Ano
+quick_task_hint | New task | Nova tarefa
+quit_started | Quit since | Parou desde
+range_all | All | Tudo
+report_error | Could not create the image | Não foi possível criar a imagem
+report_save_image | Save image | Salvar imagem
+report_saved | Saved to Pictures/Steady | Salvo em Imagens/Steady
+report_share | Share | Compartilhar
+reports_title | Reports | Relatórios
+reschedule_pick | Pick a date | Escolher data
+reschedule_today | Today | Hoje
+reschedule_tomorrow | Tomorrow | Amanhã
+schedule_apply | Apply | Aplicar
+schedule_date | Date | Data
+schedule_none | None | Nenhum
+schedule_notification | Notification | Notificação
+schedule_time | Time | Hora
+schedule_title | Schedule | Agendar
+search_title | Search: %s | Pesquisa: %s
+settings_archived_habits | Archived habits | Hábitos arquivados
+settings_font_size | Font size | Tamanho da fonte
+settings_timer_countdown | Timer starts in countdown | Temporizador inicia em contagem regressiva
+settings_timer_countdown_summary | Otherwise it opens as a stopwatch | Caso contrário, abre como cronômetro
+show_less | Show less | Mostrar menos
+stat_activities | Entries | Registros
+stat_daily_average | Daily average | Média diária
+task_mark_open | Mark as not done | Marcar como não feita
+timer_choose_habit | Choose a habit | Escolha um hábito
+timer_lap | Lap | Volta
+timer_lap_n | Lap %d | Volta %d
+timer_laps | Laps | Voltas
+timer_no_habits | Create a habit first to log timed sessions. | Crie um hábito primeiro para registrar sessões cronometradas.
+timer_sessions | Recent sessions | Sessões recentes
+tracking_count | Count | Contagem
+tracking_count_desc | Times, minutes, litres, pages… anything you can count | Vezes, minutos, litros, páginas… qualquer coisa que dê para contar
+tracking_manual | Manual entry | Registro manual
+tracking_quit | Quit a habit | Largar um hábito
+tracking_quit_desc | Track how long since you last did it | Acompanhe há quanto tempo você não faz isso
+tracking_select | Select | Selecionar
+tracking_type | Tracking type | Tipo de acompanhamento
+unit_custom | Custom unit | Unidade personalizada
+view_all_streaks | View all streaks | Ver todas as sequências

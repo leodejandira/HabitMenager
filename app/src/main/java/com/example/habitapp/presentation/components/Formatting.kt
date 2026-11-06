@@ -108,3 +108,15 @@ fun shortDayName(date: LocalDate, locale: Locale): String =
 
 fun narrowDayName(day: java.time.DayOfWeek, locale: Locale): String =
     day.getDisplayName(TextStyle.NARROW, locale)
+
+/** "0 / 15 min", "2 / 5 vezes", "0,5 / 2 litros". */
+@Composable
+fun habitGoalText(habit: Habit, total: Double, target: Double): String = when (habit.type) {
+    HabitType.DURATION -> "${formatAmount(total)} / ${formatAmount(target)} min"
+    HabitType.COUNT, HabitType.BOOLEAN -> if (habit.unit.isBlank()) {
+        "${formatAmount(total)} / " + pluralStringResource(R.plurals.times_unit, target.toInt().coerceAtLeast(1), formatAmount(target))
+    } else {
+        "${formatAmount(total)} / ${formatAmount(target)} ${habit.unit}"
+    }
+    else -> "${formatAmount(total)} / ${formatAmount(target)}" + if (habit.unit.isBlank()) "" else " ${habit.unit}"
+}

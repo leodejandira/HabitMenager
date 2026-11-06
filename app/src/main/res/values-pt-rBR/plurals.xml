@@ -30,4 +30,17 @@
         <item quantity="many">%d anos</item>
         <item quantity="other">%d anos</item>
     </plurals>
+    <plurals name="times_unit">
+        <item quantity="one">%s vez</item>
+        <item quantity="many">%s vezes</item>
+        <item quantity="other">%s vezes</item>
+    </plurals>
+    <plurals name="times_word">
+        <item quantity="one">vez</item>
+        <item quantity="other">vezes</item>
+    </plurals>
+    <plurals name="reminders_count">
+        <item quantity="one">%d lembrete</item>
+        <item quantity="other">%d lembretes</item>
+    </plurals>
 </resources>

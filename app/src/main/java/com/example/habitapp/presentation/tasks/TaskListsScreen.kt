@@ -1,17 +1,13 @@
 package com.example.habitapp.presentation.tasks
 
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -29,7 +25,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.clickable
+import com.example.habitapp.presentation.components.ListBadge
+import com.example.habitapp.presentation.components.ListIconPickerDialog
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -42,7 +42,6 @@ import com.example.habitapp.domain.model.TaskList
 import com.example.habitapp.domain.repository.TaskRepository
 import com.example.habitapp.presentation.components.ColorPicker
 import com.example.habitapp.presentation.components.ConfirmDialog
-import com.example.habitapp.presentation.theme.HabitColor
 import com.example.habitapp.presentation.theme.HabitTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -94,7 +93,7 @@ fun TaskListsScreen(onBack: () -> Unit, viewModel: TaskListsViewModel = hiltView
         },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                editing = TaskList(UUID.randomUUID().toString(), "", "evergreen", lists.size, archived = false, isInbox = false)
+                editing = TaskList(UUID.randomUUID().toString(), "", "periwinkle", lists.size, archived = false, isInbox = false, icon = "checklist")
             }) { Icon(painterResource(R.drawable.ic_add), stringResource(R.string.list_new)) }
         },
     ) { padding ->
@@ -103,7 +102,7 @@ fun TaskListsScreen(onBack: () -> Unit, viewModel: TaskListsViewModel = hiltView
                 val list = item.list
                 ListItem(
                     leadingContent = {
-                        Box(Modifier.size(20.dp).background(HabitColor.fromKey(list.colorKey).resolve(), CircleShape))
+                        ListBadge(list.icon, list.colorKey, size = 36.dp)
                     },
                     headlineContent = { Text(list.name) },
                     supportingContent = {
@@ -156,22 +155,31 @@ fun TaskListsScreen(onBack: () -> Unit, viewModel: TaskListsViewModel = hiltView
 private fun ListEditDialog(list: TaskList, onSave: (TaskList) -> Unit, onDismiss: () -> Unit) {
     var name by rememberSaveable { mutableStateOf(list.name) }
     var color by rememberSaveable { mutableStateOf(list.colorKey) }
+    var icon by rememberSaveable { mutableStateOf(list.icon) }
+    var pickingIcon by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(if (list.name.isEmpty()) R.string.list_new else R.string.list_edit)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(HabitTheme.spacing.md)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ListBadge(icon, color, size = 48.dp, modifier = Modifier.clickable { pickingIcon = true })
+                    TextButton(onClick = { pickingIcon = true }) { Text(stringResource(R.string.list_choose_icon)) }
+                }
                 OutlinedTextField(value = name, onValueChange = { name = it.take(40) }, label = { Text(stringResource(R.string.habit_name)) }, singleLine = true)
                 ColorPicker(selectedKey = color, onSelected = { color = it })
             }
         },
         confirmButton = {
             TextButton(enabled = name.isNotBlank(), onClick = {
-                onSave(list.copy(name = name, colorKey = color))
+                onSave(list.copy(name = name, colorKey = color, icon = icon))
                 onDismiss()
             }) { Text(stringResource(R.string.action_save)) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
         modifier = Modifier.padding(HabitTheme.spacing.sm),
     )
+    if (pickingIcon) {
+        ListIconPickerDialog(colorKey = color, onSelected = { icon = it }, onDismiss = { pickingIcon = false })
+    }
 }

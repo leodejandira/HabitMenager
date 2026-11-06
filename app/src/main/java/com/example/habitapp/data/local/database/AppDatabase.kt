@@ -79,19 +79,18 @@ class Migration1To2 : AutoMigrationSpec {
             "UPDATE habits SET goalPeriod = 'MONTH', targetValue = CASE WHEN type = 'BOOLEAN' THEN timesPerPeriod ELSE targetValue * timesPerPeriod END, " +
                 "frequencyType = 'DAILY' WHERE frequencyType = 'TIMES_PER_MONTH'",
         )
-        db.execSQL("UPDATE task_lists SET icon = '📥' WHERE isInbox = 1 AND icon = ''")
-        db.execSQL("UPDATE task_lists SET icon = '📋' WHERE icon = ''")
+        db.execSQL("UPDATE task_lists SET icon = 'checklist' WHERE icon = ''")
     }
 }
 
 /** The predefined task lists, localized with the current app language. */
 fun defaultTaskLists(context: Context, now: Long): List<TaskListEntity> = listOf(
-    DefaultList(R.string.list_inbox, "slate", "📥", true),
-    DefaultList(R.string.list_personal, "evergreen", "🙂", false),
-    DefaultList(R.string.list_work, "indigo", "💼", false),
-    DefaultList(R.string.list_shopping, "amber", "🛒", false),
-    DefaultList(R.string.list_errands, "coral", "🏃", false),
-    DefaultList(R.string.list_other, "violet", "📋", false),
+    DefaultList(R.string.list_inbox, "periwinkle", "checklist", true),
+    DefaultList(R.string.list_personal, "teal", "person", false),
+    DefaultList(R.string.list_work, "amber", "work", false),
+    DefaultList(R.string.list_shopping, "coral", "shopping", false),
+    DefaultList(R.string.list_errands, "sky", "run", false),
+    DefaultList(R.string.list_other, "lilac", "star", false),
 ).mapIndexed { index, (nameRes, color, icon, isInbox) ->
     TaskListEntity(
         id = UUID.randomUUID().toString(),

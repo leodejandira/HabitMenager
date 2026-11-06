@@ -164,6 +164,9 @@ interface HabitDao {
     @Query("SELECT * FROM timer_sessions WHERE finishedAt IS NULL ORDER BY startedAt DESC LIMIT 1")
     fun observeActiveTimer(): Flow<TimerSessionEntity?>
 
+    @Query("SELECT * FROM timer_sessions WHERE finishedAt IS NOT NULL AND accumulatedMillis > 0 ORDER BY finishedAt DESC LIMIT :limit")
+    fun observeFinishedTimers(limit: Int): Flow<List<TimerSessionEntity>>
+
     @Query("SELECT * FROM timer_sessions WHERE finishedAt IS NULL ORDER BY startedAt DESC LIMIT 1")
     suspend fun getActiveTimer(): TimerSessionEntity?
 

@@ -11,14 +11,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -54,7 +58,7 @@ fun HabitApp(
     LaunchedEffect(deepLink) {
         when (deepLink) {
             is DeepLink.Habit -> navController.navigate(HabitDetailRoute(deepLink.habitId)) { launchSingleTop = true }
-            DeepLink.Tasks -> navController.navigateToTopLevel(TopLevelDestination.TASKS)
+            DeepLink.Tasks -> navController.navigateToTopLevel(TopLevelDestination.TODAY)
             null -> return@LaunchedEffect
         }
         onDeepLinkHandled()
@@ -95,14 +99,20 @@ private fun AppNavigationBar(
     currentDestination: NavDestination?,
     onNavigate: (TopLevelDestination) -> Unit,
 ) {
-    NavigationBar {
+    NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
         TopLevelDestination.entries.forEach { destination ->
             val selected = currentDestination.isInHierarchy(destination.routeClass)
             NavigationBarItem(
                 selected = selected,
                 onClick = { onNavigate(destination) },
-                icon = { Icon(painterResource(destination.iconRes), contentDescription = null) },
-                label = { Text(stringResource(destination.labelRes)) },
+                icon = { Icon(painterResource(destination.iconRes), contentDescription = stringResource(destination.labelRes), modifier = Modifier.size(28.dp)) },
+                label = null,
+                alwaysShowLabel = false,
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.onSurface,
+                    unselectedIconColor = MaterialTheme.colorScheme.outline,
+                    indicatorColor = Color.Transparent,
+                ),
                 modifier = Modifier.testTag(navItemTestTag(destination)),
             )
         }

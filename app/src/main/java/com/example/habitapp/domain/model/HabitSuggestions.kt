@@ -1,33 +1,29 @@
 package com.example.habitapp.domain.model
 
-import java.time.DayOfWeek
-
-enum class SuggestionCategory(val emoji: String, val nameEn: String, val namePt: String) {
-    HEALTH("❤️", "Health", "Saúde"),
-    FITNESS("💪", "Fitness", "Exercícios"),
-    PRODUCTIVITY("🎯", "Productivity", "Produtividade"),
-    LEARNING("📚", "Learning", "Aprendizado"),
-    MINDFULNESS("🧘", "Mindfulness", "Atenção plena"),
-    PERSONAL_CARE("🧴", "Personal care", "Cuidados pessoais"),
-    LIFESTYLE("🌱", "Lifestyle", "Estilo de vida"),
-    FINANCE("💰", "Financial discipline", "Disciplina financeira"),
-    SOCIAL("👨‍👩‍👧", "Social relationships", "Relacionamentos"),
-    QUIT("🚭", "Bad habits to quit", "Maus hábitos para largar"),
+/** Groups of suggestions on the "new habit" screen. */
+enum class SuggestionCategory(val nameEn: String, val namePt: String, val quit: Boolean = false) {
+    FITNESS("Exercise", "Exercícios"),
+    HEALTH("Health", "Saúde"),
+    MIND("Mind", "Mente"),
+    CHORES("Chores", "Tarefas domésticas"),
+    REDUCE("Reduce", "Reduzir"),
+    QUIT("Quit", "Parar", quit = true),
 }
 
 data class HabitSuggestion(
     val id: String,
     val category: SuggestionCategory,
-    val emoji: String,
     val nameEn: String,
     val namePt: String,
-    val type: HabitType = HabitType.BOOLEAN,
+    val colorKey: String,
+    val type: HabitType = HabitType.COUNT,
     val target: Double = 1.0,
     val step: Double = 1.0,
     val unitEn: String = "",
     val unitPt: String = "",
-    val colorKey: String = "evergreen",
-    val frequency: HabitFrequency = HabitFrequency(),
+    val goalPeriod: GoalPeriod = GoalPeriod.DAY,
+    val goalType: GoalType = GoalType.AT_LEAST,
+    val emoji: String = "✅",
 ) {
     fun name(portuguese: Boolean) = if (portuguese) namePt else nameEn
     fun unit(portuguese: Boolean) = if (portuguese) unitPt else unitEn
@@ -35,59 +31,55 @@ data class HabitSuggestion(
 
 /** Local, offline catalog of habit ideas. */
 object HabitSuggestions {
-    private val MWF = HabitFrequency(FrequencyType.WEEKDAYS, setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY))
-    private fun perWeek(n: Int) = HabitFrequency(FrequencyType.TIMES_PER_WEEK, timesPerPeriod = n) // converted to a weekly goal by the editor
+    private fun s(
+        id: String, c: SuggestionCategory, en: String, pt: String, color: String,
+        type: HabitType = HabitType.COUNT, target: Double = 1.0, step: Double = 1.0,
+        unitEn: String = "", unitPt: String = unitEn, period: GoalPeriod = GoalPeriod.DAY,
+        goal: GoalType = GoalType.AT_LEAST, emoji: String = "✅",
+    ) = HabitSuggestion(id, c, en, pt, color, type, target, step, unitEn, unitPt, period, goal, emoji)
 
     val all: List<HabitSuggestion> = listOf(
-        HabitSuggestion("drink_water", SuggestionCategory.HEALTH, "💧", "Drink water", "Beber água", HabitType.NUMERIC, 2000.0, 250.0, "ml", "ml", "ocean"),
-        HabitSuggestion("vitamins", SuggestionCategory.HEALTH, "💊", "Take vitamins", "Tomar vitaminas", colorKey = "amber"),
-        HabitSuggestion("sleep_early", SuggestionCategory.HEALTH, "😴", "Sleep before 11 pm", "Dormir antes das 23h", colorKey = "indigo"),
-        HabitSuggestion("eat_fruit", SuggestionCategory.HEALTH, "🍎", "Eat fruit", "Comer frutas", HabitType.COUNT, 3.0, 1.0, "servings", "porções", "coral"),
-        HabitSuggestion("veggies", SuggestionCategory.HEALTH, "🥦", "Eat vegetables", "Comer vegetais", colorKey = "olive"),
+        s("exercise", SuggestionCategory.FITNESS, "Exercise", "Fazer exercícios", "pink", period = GoalPeriod.WEEK, target = 3.0, emoji = "💪"),
+        s("run", SuggestionCategory.FITNESS, "Run", "Correr", "periwinkle", HabitType.DURATION, 30.0, 5.0, emoji = "🏃"),
+        s("cardio", SuggestionCategory.FITNESS, "Cardio", "Fazer cardio", "peach", HabitType.DURATION, 20.0, 5.0, emoji = "❤️"),
+        s("gym", SuggestionCategory.FITNESS, "Strength training", "Fazer musculação", "teal", period = GoalPeriod.WEEK, target = 5.0, emoji = "🏋️"),
+        s("walk", SuggestionCategory.FITNESS, "Walk", "Caminhar", "mint", HabitType.NUMERIC, 5.0, 1.0, "km", "km", emoji = "🚶"),
+        s("stretch", SuggestionCategory.FITNESS, "Stretch", "Alongar", "lilac", HabitType.DURATION, 10.0, 5.0, emoji = "🤸"),
+        s("pushups", SuggestionCategory.FITNESS, "Push-ups", "Flexões", "coral", target = 30.0, step = 10.0, emoji = "💪"),
 
-        HabitSuggestion("walk_steps", SuggestionCategory.FITNESS, "🚶", "Walk", "Caminhar", HabitType.NUMERIC, 5.0, 1.0, "km", "km", "teal"),
-        HabitSuggestion("pushups", SuggestionCategory.FITNESS, "💪", "Push-ups", "Flexões", HabitType.COUNT, 30.0, 10.0, "reps", "repetições", "coral"),
-        HabitSuggestion("workout", SuggestionCategory.FITNESS, "🏋️", "Work out", "Treinar", colorKey = "rose", frequency = MWF),
-        HabitSuggestion("run", SuggestionCategory.FITNESS, "🏃", "Go for a run", "Correr", HabitType.DURATION, 30.0, 5.0, colorKey = "ocean", frequency = perWeek(3)),
-        HabitSuggestion("stretch", SuggestionCategory.FITNESS, "🤸", "Stretch", "Alongar", HabitType.DURATION, 10.0, 5.0, colorKey = "violet"),
+        s("water", SuggestionCategory.HEALTH, "Drink water", "Beber água", "lavender", HabitType.NUMERIC, 2.0, 0.25, "liters", "litros", emoji = "💧"),
+        s("wake_early", SuggestionCategory.HEALTH, "Wake up early", "Acordar cedo", "yellow", emoji = "⏰"),
+        s("sleep_early", SuggestionCategory.HEALTH, "Sleep early", "Dormir cedo", "lilac", emoji = "😴"),
+        s("cook", SuggestionCategory.HEALTH, "Cook at home", "Cozinhar", "teal", period = GoalPeriod.WEEK, target = 4.0, emoji = "🍳"),
+        s("fruit", SuggestionCategory.HEALTH, "Eat fruit", "Comer frutas", "mint", target = 2.0, emoji = "🍎"),
+        s("vitamins", SuggestionCategory.HEALTH, "Take vitamins", "Tomar vitaminas", "amber", emoji = "💊"),
 
-        HabitSuggestion("plan_day", SuggestionCategory.PRODUCTIVITY, "🗓️", "Plan the day", "Planejar o dia", colorKey = "indigo"),
-        HabitSuggestion("deep_work", SuggestionCategory.PRODUCTIVITY, "🎯", "Deep work", "Trabalho focado", HabitType.DURATION, 90.0, 15.0, colorKey = "slate"),
-        HabitSuggestion("inbox_zero", SuggestionCategory.PRODUCTIVITY, "📥", "Clear inbox", "Zerar a caixa de entrada", colorKey = "ocean"),
-        HabitSuggestion("tidy_desk", SuggestionCategory.PRODUCTIVITY, "🧹", "Tidy workspace", "Organizar a mesa", colorKey = "amber"),
+        s("read", SuggestionCategory.MIND, "Read", "Ler", "indigo", HabitType.NUMERIC, 20.0, 5.0, "pages", "páginas", emoji = "📖"),
+        s("study", SuggestionCategory.MIND, "Study", "Estudar", "coral", HabitType.DURATION, 60.0, 15.0, emoji = "🧠"),
+        s("learn", SuggestionCategory.MIND, "Learn", "Aprender", "mint", HabitType.DURATION, 30.0, 10.0, emoji = "💡"),
+        s("meditate", SuggestionCategory.MIND, "Meditate", "Meditar", "peach", HabitType.DURATION, 10.0, 5.0, emoji = "🧘"),
+        s("journal", SuggestionCategory.MIND, "Journal", "Escrever no diário", "yellow", emoji = "✍️"),
+        s("instrument", SuggestionCategory.MIND, "Practice an instrument", "Praticar um instrumento", "coral", HabitType.DURATION, 15.0, 5.0, emoji = "🎸"),
 
-        HabitSuggestion("read_pages", SuggestionCategory.LEARNING, "📖", "Read", "Ler", HabitType.COUNT, 20.0, 5.0, "pages", "páginas", "violet"),
-        HabitSuggestion("study", SuggestionCategory.LEARNING, "🧠", "Study", "Estudar", HabitType.DURATION, 60.0, 15.0, colorKey = "indigo", frequency = perWeek(5)),
-        HabitSuggestion("language", SuggestionCategory.LEARNING, "🗣️", "Practice a language", "Praticar um idioma", HabitType.DURATION, 15.0, 5.0, colorKey = "teal"),
-        HabitSuggestion("instrument", SuggestionCategory.LEARNING, "🎸", "Practice an instrument", "Praticar um instrumento", HabitType.DURATION, 20.0, 5.0, colorKey = "coral"),
+        s("clean", SuggestionCategory.CHORES, "Clean", "Limpar", "lilac", period = GoalPeriod.WEEK, target = 2.0, emoji = "🧹"),
+        s("dishes", SuggestionCategory.CHORES, "Wash the dishes", "Lavar a louça", "silver", emoji = "🍽️"),
+        s("laundry", SuggestionCategory.CHORES, "Do laundry", "Lavar roupas", "lavender", period = GoalPeriod.WEEK, target = 1.0, emoji = "🧺"),
+        s("vacuum", SuggestionCategory.CHORES, "Vacuum", "Passar aspirador", "slate", period = GoalPeriod.WEEK, target = 1.0, emoji = "🧹"),
+        s("plants", SuggestionCategory.CHORES, "Water plants", "Regar plantas", "mint", period = GoalPeriod.WEEK, target = 2.0, emoji = "🌱"),
+        s("make_bed", SuggestionCategory.CHORES, "Make the bed", "Arrumar a cama", "peach", emoji = "🛏️"),
 
-        HabitSuggestion("meditate", SuggestionCategory.MINDFULNESS, "🧘", "Meditate", "Meditar", HabitType.DURATION, 10.0, 5.0, colorKey = "evergreen"),
-        HabitSuggestion("gratitude", SuggestionCategory.MINDFULNESS, "🙏", "Write 3 gratitudes", "Escrever 3 gratidões", colorKey = "amber"),
-        HabitSuggestion("journal", SuggestionCategory.MINDFULNESS, "✍️", "Journal", "Escrever no diário", colorKey = "violet"),
-        HabitSuggestion("breathe", SuggestionCategory.MINDFULNESS, "🌬️", "Breathing exercise", "Exercício de respiração", colorKey = "ocean"),
+        s("smoke_less", SuggestionCategory.REDUCE, "Smoke less", "Fumar menos", "cyan", target = 5.0, unitEn = "cigarettes", unitPt = "cigarros", goal = GoalType.AT_MOST, emoji = "🚬"),
+        s("drink_less", SuggestionCategory.REDUCE, "Drink less alcohol", "Beber menos álcool", "purple", period = GoalPeriod.WEEK, target = 3.0, unitEn = "drinks", unitPt = "doses", goal = GoalType.AT_MOST, emoji = "🍷"),
+        s("sugar_less", SuggestionCategory.REDUCE, "Eat less sugar", "Comer menos açúcar", "periwinkle", target = 1.0, goal = GoalType.AT_MOST, emoji = "🍬"),
+        s("screen_less", SuggestionCategory.REDUCE, "Less screen time", "Menos tempo de tela", "slate", HabitType.DURATION, 120.0, 15.0, goal = GoalType.AT_MOST, emoji = "📱"),
+        s("coffee_less", SuggestionCategory.REDUCE, "Less coffee", "Menos café", "amber", target = 2.0, unitEn = "cups", unitPt = "xícaras", goal = GoalType.AT_MOST, emoji = "☕"),
 
-        HabitSuggestion("floss", SuggestionCategory.PERSONAL_CARE, "🦷", "Floss", "Usar fio dental", colorKey = "teal"),
-        HabitSuggestion("skincare", SuggestionCategory.PERSONAL_CARE, "🧴", "Skincare routine", "Rotina de skincare", colorKey = "rose"),
-        HabitSuggestion("sunscreen", SuggestionCategory.PERSONAL_CARE, "☀️", "Apply sunscreen", "Passar protetor solar", colorKey = "amber"),
-
-        HabitSuggestion("make_bed", SuggestionCategory.LIFESTYLE, "🛏️", "Make the bed", "Arrumar a cama", colorKey = "slate"),
-        HabitSuggestion("cook", SuggestionCategory.LIFESTYLE, "🍳", "Cook at home", "Cozinhar em casa", colorKey = "coral", frequency = perWeek(4)),
-        HabitSuggestion("outdoors", SuggestionCategory.LIFESTYLE, "🌳", "Time outdoors", "Tempo ao ar livre", HabitType.DURATION, 30.0, 10.0, colorKey = "olive"),
-        HabitSuggestion("plants", SuggestionCategory.LIFESTYLE, "🌱", "Water the plants", "Regar as plantas", colorKey = "evergreen", frequency = perWeek(2)),
-
-        HabitSuggestion("track_spending", SuggestionCategory.FINANCE, "📒", "Track expenses", "Anotar gastos", colorKey = "olive"),
-        HabitSuggestion("save_money", SuggestionCategory.FINANCE, "💰", "Save money", "Guardar dinheiro", HabitType.NUMERIC, 10.0, 5.0, "R$", "R$", "amber"),
-        HabitSuggestion("no_spend", SuggestionCategory.FINANCE, "🚫", "No-spend day", "Dia sem gastos", colorKey = "slate", frequency = perWeek(2)),
-
-        HabitSuggestion("call_family", SuggestionCategory.SOCIAL, "📞", "Call family", "Ligar para a família", colorKey = "rose", frequency = perWeek(2)),
-        HabitSuggestion("message_friend", SuggestionCategory.SOCIAL, "💬", "Message a friend", "Mandar mensagem a um amigo", colorKey = "ocean"),
-        HabitSuggestion("quality_time", SuggestionCategory.SOCIAL, "❤️", "Quality time together", "Tempo de qualidade juntos", colorKey = "coral"),
-
-        HabitSuggestion("quit_smoking", SuggestionCategory.QUIT, "🚭", "Quit smoking", "Parar de fumar", HabitType.QUIT, colorKey = "slate"),
-        HabitSuggestion("quit_drinking", SuggestionCategory.QUIT, "🍷", "Quit drinking", "Parar de beber", HabitType.QUIT, colorKey = "rose"),
-        HabitSuggestion("quit_social", SuggestionCategory.QUIT, "📵", "Less social media", "Menos redes sociais", HabitType.QUIT, colorKey = "indigo"),
-        HabitSuggestion("quit_junk", SuggestionCategory.QUIT, "🍔", "No junk food", "Sem junk food", HabitType.QUIT, colorKey = "amber"),
-        HabitSuggestion("quit_nails", SuggestionCategory.QUIT, "💅", "Stop biting nails", "Parar de roer unhas", HabitType.QUIT, colorKey = "violet"),
+        s("quit_smoking", SuggestionCategory.QUIT, "Quit smoking", "Parar de fumar", "silver", HabitType.QUIT, emoji = "🚭"),
+        s("quit_alcohol", SuggestionCategory.QUIT, "Quit alcohol", "Parar de beber álcool", "rose", HabitType.QUIT, emoji = "🍷"),
+        s("quit_social", SuggestionCategory.QUIT, "Quit social media", "Parar de usar redes sociais", "sky", HabitType.QUIT, emoji = "📵"),
+        s("quit_junk", SuggestionCategory.QUIT, "Quit junk food", "Parar de comer junk food", "peach", HabitType.QUIT, emoji = "🍔"),
+        s("quit_nails", SuggestionCategory.QUIT, "Stop biting nails", "Parar de roer unhas", "lilac", HabitType.QUIT, emoji = "💅"),
+        s("quit_sugar", SuggestionCategory.QUIT, "Quit sugar", "Parar de comer açúcar", "pink", HabitType.QUIT, emoji = "🍬"),
     )
 
     fun byId(id: String): HabitSuggestion? = all.firstOrNull { it.id == id }

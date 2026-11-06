@@ -191,4 +191,5 @@ fun TimerSessionEntity.toDomain() = TimerSession(
     runningSince = runningSince?.let(Instant::ofEpochMilli),
     accumulatedMillis = accumulatedMillis,
     startedAt = Instant.ofEpochMilli(startedAt),
+    finishedAt = finishedAt?.let(Instant::ofEpochMilli),
 )

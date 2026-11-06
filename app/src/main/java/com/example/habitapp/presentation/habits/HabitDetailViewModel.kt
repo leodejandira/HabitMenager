@@ -43,6 +43,9 @@ sealed interface HabitDetailUiState {
     data object NotFound : HabitDetailUiState
     data object Error : HabitDetailUiState
     data class Ready(
+        val selectedDate: LocalDate,
+        val selectedPeriod: com.example.habitapp.domain.util.PeriodProgress,
+        val streakRuns: List<com.example.habitapp.domain.util.StreakRun>,
         val habit: Habit,
         val stats: HabitStats,
         val progress: Map<LocalDate, DayProgress>,
@@ -63,7 +66,7 @@ sealed interface HabitDetailEvent {
 
 @HiltViewModel
 class HabitDetailViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val repository: HabitRepository,
     journalRepository: JournalRepository,
     preferences: UserPreferencesRepository,
@@ -75,18 +78,24 @@ class HabitDetailViewModel @Inject constructor(
     private val _events = MutableSharedFlow<HabitDetailEvent>(extraBufferCapacity = 4)
     val events: SharedFlow<HabitDetailEvent> = _events.asSharedFlow()
 
+    private val selectedDay = savedStateHandle.getStateFlow<Long?>(KEY_SELECTED, null)
+
     val state: StateFlow<HabitDetailUiState> = combine(
-        repository.observeHabit(habitId),
+        combine(repository.observeHabit(habitId), selectedDay) { h, d -> h to d },
         repository.observeActivitiesForHabit(habitId),
         combine(repository.observeReminders(habitId), journalRepository.observeForHabit(habitId)) { r, n -> r to n },
         preferences.preferences,
         time.minuteTicks(),
-    ) { habit, activities, remindersAndNotes, prefs, now ->
+    ) { (habit, selectedEpochDay), activities, remindersAndNotes, prefs, now ->
         if (habit == null) return@combine HabitDetailUiState.NotFound
         val firstDay = resolveFirstDayOfWeek(prefs.firstDayOfWeek)
         val today = now.toLocalDate()
         val progress = HabitCalculator.progressByDay(habit, activities)
+        val selected = selectedEpochDay?.let(LocalDate::ofEpochDay) ?: today
         HabitDetailUiState.Ready(
+            selectedDate = selected,
+            selectedPeriod = HabitCalculator.periodProgress(habit, progress, selected, firstDay, today),
+            streakRuns = HabitCalculator.streakRuns(habit, progress, today, firstDay),
             habit = habit,
             stats = HabitCalculator.stats(habit, activities, today, firstDay),
             progress = progress,
@@ -106,6 +115,12 @@ class HabitDetailViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HabitDetailUiState.Loading)
 
     fun toggleToday() = launch { repository.toggleCompletion(habitId, time.today()) }
+
+    fun selectDate(date: LocalDate) {
+        savedStateHandle[KEY_SELECTED] = date.toEpochDay()
+    }
+
+    fun toggleDay(date: LocalDate) = launch { repository.toggleCompletion(habitId, date) }
 
     fun addEntry(date: LocalDate, amount: Double, note: String?) = launch { repository.addProgress(habitId, date, amount, note) }
 
@@ -149,5 +164,6 @@ class HabitDetailViewModel @Inject constructor(
 
     private companion object {
         const val TAG = "HabitDetailViewModel"
+        const val KEY_SELECTED = "selected_day"
     }
 }

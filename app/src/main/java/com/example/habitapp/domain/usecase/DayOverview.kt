@@ -129,6 +129,26 @@ object TaskQueries {
 class BuildDayOverviewUseCase @Inject constructor(
     private val time: TimeProvider,
 ) {
+    /** Progress of one habit for [date], whether or not it is scheduled that day. */
+    fun item(habit: Habit, habitActivities: List<HabitActivity>, date: LocalDate, firstDayOfWeek: DayOfWeek): HabitDayItem {
+        val today = time.today()
+        val progress = HabitCalculator.progressByDay(habit, habitActivities)
+        return HabitDayItem(
+            habit = habit,
+            progress = progress[date] ?: HabitCalculator.emptyProgress(habit, date),
+            streak = HabitCalculator.streak(habit, progress, today, firstDayOfWeek),
+            period = HabitCalculator.periodProgress(habit, progress, date, firstDayOfWeek, today),
+            done = HabitCalculator.isDone(habit, progress, date, firstDayOfWeek, today),
+            countsTowardProgress = HabitCalculator.countsTowardDailyProgress(habit, progress, date, firstDayOfWeek),
+            quit = if (habit.type == HabitType.QUIT) {
+                QuitCalculator.status(habit, habitActivities, time.nowInstant(), time.zone())
+            } else {
+                null
+            },
+            history = progress,
+        )
+    }
+
     operator fun invoke(
         date: LocalDate,
         habits: List<Habit>,
@@ -141,24 +161,7 @@ class BuildDayOverviewUseCase @Inject constructor(
         val items = habits
             .filter { !it.archived && HabitCalculator.isScheduledOn(it, date) }
             .sortedBy { it.sortOrder }
-            .map { habit ->
-                val habitActivities = byHabit[habit.id].orEmpty()
-                val progress = HabitCalculator.progressByDay(habit, habitActivities)
-                HabitDayItem(
-                    habit = habit,
-                    progress = progress[date] ?: HabitCalculator.emptyProgress(habit, date),
-                    streak = HabitCalculator.streak(habit, progress, today, firstDayOfWeek),
-                    period = HabitCalculator.periodProgress(habit, progress, date, firstDayOfWeek, today),
-                    done = HabitCalculator.isDone(habit, progress, date, firstDayOfWeek, today),
-                    history = progress,
-                    countsTowardProgress = HabitCalculator.countsTowardDailyProgress(habit, progress, date, firstDayOfWeek),
-                    quit = if (habit.type == HabitType.QUIT) {
-                        QuitCalculator.status(habit, habitActivities, time.nowInstant(), time.zone())
-                    } else {
-                        null
-                    },
-                )
-            }
+            .map { habit -> item(habit, byHabit[habit.id].orEmpty(), date, firstDayOfWeek) }
         return DayOverview(
             date = date,
             habits = items,

@@ -15,10 +15,9 @@ enum class TopLevelDestination(
     @param:StringRes val labelRes: Int,
 ) {
     TODAY(TodayRoute, TodayRoute::class, R.drawable.ic_today, R.string.nav_today),
-    HABITS(HabitsRoute, HabitsRoute::class, R.drawable.ic_habits, R.string.nav_habits),
-    CALENDAR(CalendarRoute, CalendarRoute::class, R.drawable.ic_calendar, R.string.nav_calendar),
     JOURNAL(JournalRoute, JournalRoute::class, R.drawable.ic_journal, R.string.nav_journal),
-    TASKS(TasksRoute, TasksRoute::class, R.drawable.ic_tasks, R.string.nav_tasks),
+    CALENDAR(CalendarRoute, CalendarRoute::class, R.drawable.ic_calendar, R.string.nav_calendar),
+    SETTINGS(SettingsRoute, SettingsRoute::class, R.drawable.ic_settings, R.string.settings_title),
 }
 
 fun NavDestination?.isInHierarchy(routeClass: KClass<*>): Boolean =

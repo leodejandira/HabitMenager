@@ -50,6 +50,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.habitapp.BuildConfig
 import com.example.habitapp.R
 import com.example.habitapp.domain.model.CalendarView
+import com.example.habitapp.domain.model.FontSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.example.habitapp.domain.model.ThemeMode
 import com.example.habitapp.domain.model.UserPreferences
 import com.example.habitapp.domain.util.resolveFirstDayOfWeek
@@ -64,7 +72,8 @@ import java.time.format.TextStyle
 
 @Composable
 fun SettingsScreen(
-    onNavigateBack: () -> Unit,
+    onNavigateBack: (() -> Unit)? = null,
+    onOpenLink: (SettingsLink) -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -72,6 +81,9 @@ fun SettingsScreen(
         uiState = uiState,
         actions = SettingsActions(
             onNavigateBack = onNavigateBack,
+            onOpenLink = onOpenLink,
+            onFontSizeSelected = viewModel::onFontSizeSelected,
+            onTimerCountdownToggled = viewModel::onTimerCountdownToggled,
             onThemeModeSelected = viewModel::onThemeModeSelected,
             onDynamicColorToggled = viewModel::onDynamicColorToggled,
             onFirstDayOfWeekSelected = viewModel::onFirstDayOfWeekSelected,
@@ -87,8 +99,21 @@ fun SettingsScreen(
     )
 }
 
+enum class SettingsLink(val title: Int, val icon: Int) {
+    ARCHIVED(R.string.settings_archived_habits, R.drawable.ic_archive),
+    ACHIEVEMENTS(R.string.achievements_title, R.drawable.ic_trophy),
+    ROUTINES(R.string.routines_title, R.drawable.ic_routine),
+    STATISTICS(R.string.statistics_title, R.drawable.ic_chart),
+    REPORTS(R.string.reports_title, R.drawable.ic_view_month),
+    LISTS(R.string.lists_manage, R.drawable.ic_list),
+    TIMER(R.string.timer_title, R.drawable.ic_timer),
+}
+
 class SettingsActions(
-    val onNavigateBack: () -> Unit,
+    val onNavigateBack: (() -> Unit)?,
+    val onOpenLink: (SettingsLink) -> Unit = {},
+    val onFontSizeSelected: (FontSize) -> Unit = {},
+    val onTimerCountdownToggled: (Boolean) -> Unit = {},
     val onThemeModeSelected: (ThemeMode) -> Unit,
     val onDynamicColorToggled: (Boolean) -> Unit,
     val onFirstDayOfWeekSelected: (DayOfWeek?) -> Unit,
@@ -124,13 +149,15 @@ fun SettingsContent(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.settings_title)) },
+                title = { Text(stringResource(R.string.settings_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = actions.onNavigateBack) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_arrow_back),
-                            contentDescription = stringResource(R.string.navigate_back),
-                        )
+                    actions.onNavigateBack?.let { back ->
+                        IconButton(onClick = back) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_arrow_back),
+                                contentDescription = stringResource(R.string.navigate_back),
+                            )
+                        }
                     }
                 },
             )
@@ -164,6 +191,25 @@ private fun SettingsList(
         modifier = Modifier.fillMaxSize(),
         contentPadding = contentPadding,
     ) {
+        item(key = "shortcuts") {
+            Column(
+                Modifier.padding(horizontal = spacing.screenHorizontal, vertical = spacing.sm)
+                    .clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh),
+            ) {
+                SettingsLink.entries.forEachIndexed { i, link ->
+                    if (i > 0) HorizontalDivider(Modifier.padding(start = 52.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                    Row(
+                        Modifier.fillMaxWidth().testTag("settings_link_${link.name.lowercase()}")
+                            .clickable { actions.onOpenLink(link) }.padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(painterResource(link.icon), null, modifier = Modifier.size(22.dp), tint = MaterialTheme.colorScheme.primary)
+                        Text(stringResource(link.title), modifier = Modifier.weight(1f).padding(start = 14.dp), style = MaterialTheme.typography.bodyLarge)
+                        Icon(painterResource(R.drawable.ic_chevron_right), null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+        }
         item(key = "appearance") {
             SectionHeader(stringResource(R.string.settings_section_appearance))
             ThemeModeSelector(
@@ -178,6 +224,7 @@ private fun SettingsList(
                     onCheckedChange = actions.onDynamicColorToggled,
                 )
             }
+            FontSizeSelector(preferences.fontSize, actions.onFontSizeSelected)
             HorizontalDivider(Modifier.padding(vertical = spacing.sm))
         }
         item(key = "display") {
@@ -193,6 +240,12 @@ private fun SettingsList(
                 summary = stringResource(R.string.settings_show_overdue_summary),
                 checked = preferences.showOverdueOnToday,
                 onCheckedChange = actions.onShowOverdueToggled,
+            )
+            SwitchRow(
+                title = stringResource(R.string.settings_timer_countdown),
+                summary = stringResource(R.string.settings_timer_countdown_summary),
+                checked = preferences.timerDefaultCountdown,
+                onCheckedChange = actions.onTimerCountdownToggled,
             )
             HorizontalDivider(Modifier.padding(vertical = spacing.sm))
         }
@@ -241,6 +294,36 @@ private fun SettingsList(
                     vertical = spacing.sm,
                 ),
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FontSizeSelector(selected: FontSize, onSelected: (FontSize) -> Unit) {
+    val spacing = HabitTheme.spacing
+    Text(
+        text = stringResource(R.string.settings_font_size),
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier.padding(horizontal = spacing.screenHorizontal, vertical = spacing.xs),
+    )
+    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(horizontal = spacing.screenHorizontal, vertical = spacing.xs)) {
+        FontSize.entries.forEachIndexed { index, size ->
+            SegmentedButton(
+                selected = size == selected,
+                onClick = { onSelected(size) },
+                shape = SegmentedButtonDefaults.itemShape(index, FontSize.entries.size),
+            ) {
+                Text(
+                    stringResource(
+                        when (size) {
+                            FontSize.SMALL -> R.string.font_small
+                            FontSize.DEFAULT -> R.string.font_default
+                            FontSize.LARGE -> R.string.font_large
+                        },
+                    ),
+                )
+            }
         }
     }
 }

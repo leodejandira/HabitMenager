@@ -68,7 +68,7 @@ class MigrationTest {
         assertEquals("DAY", water.goalPeriod)
         assertEquals("AT_LEAST", water.goalType)
         assertEquals(750.0, db.habitDao().getAllActivities().single().value, 0.0)
-        assertEquals("📥", db.taskDao().getAllLists().single().icon)
+        assertEquals("checklist", db.taskDao().getAllLists().single().icon)
         db.close()
         context.deleteDatabase(dbName)
         Unit

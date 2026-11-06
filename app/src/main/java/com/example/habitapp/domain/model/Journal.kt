@@ -27,6 +27,7 @@ data class TimerSession(
     val runningSince: Instant?,
     val accumulatedMillis: Long,
     val startedAt: Instant,
+    val finishedAt: Instant? = null,
 ) {
     val isRunning: Boolean get() = runningSince != null
 

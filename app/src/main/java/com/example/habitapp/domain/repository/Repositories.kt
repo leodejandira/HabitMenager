@@ -60,6 +60,7 @@ interface RoutineRepository {
 
 interface TimerRepository {
     fun observeActiveTimer(): Flow<TimerSession?>
+    fun observeRecentSessions(limit: Int = 30): Flow<List<TimerSession>>
     suspend fun start(habitId: String, mode: TimerMode, countdownMillis: Long?)
     suspend fun pause()
     suspend fun resume()

@@ -4,18 +4,20 @@ import android.graphics.Bitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.habitapp.MainActivity
+import com.example.habitapp.presentation.home.HomeTestTags
 import com.example.habitapp.presentation.navigation.TopLevelDestination
 import com.example.habitapp.presentation.navigation.navItemTestTag
+import com.example.habitapp.presentation.timers.TimerTestTags
 import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
@@ -25,13 +27,13 @@ import org.robolectric.annotation.GraphicsMode
 import java.io.File
 
 /**
- * Renders key screens to PNG files for visual review. Only runs when the
- * `steady.screenshots` system property points to an output directory.
+ * Renders key screens to PNG files for visual review (dark theme, Portuguese, like the reference prints).
+ * Only runs when the `steady.screenshots` system property points to an output directory.
  */
 @OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(qualifiers = "w411dp-h891dp-xxhdpi")
+@Config(qualifiers = "pt-rBR-w411dp-h891dp-night-xxhdpi")
 class ScreenshotTest {
 
     @get:Rule
@@ -40,81 +42,97 @@ class ScreenshotTest {
     private val outDir: File? = System.getProperty("steady.screenshots")?.let(::File)
 
     private fun waitForTag(tag: String) = compose.waitUntil(10_000) { compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty() }
-    private fun waitForText(text: String) = compose.waitUntil(10_000) {
-        compose.onAllNodes(hasText(text, substring = true)).fetchSemanticsNodes().isNotEmpty()
-    }
 
     private fun shot(name: String) {
         val dir = outDir ?: return
         dir.mkdirs()
         compose.waitForIdle()
+        Thread.sleep(300)
+        compose.waitForIdle()
         val bitmap = compose.onNode(isRoot()).captureToImage().asAndroidBitmap()
         File(dir, "$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
     }
 
-    private fun createHabit(name: String, typeLabel: String? = null, target: String? = null) {
+    private fun back() = compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+
+    private fun openHabitCreation() {
+        waitForTag("dashboard_fab")
         compose.onNodeWithTag("dashboard_fab").performClick()
         compose.onNodeWithTag("fab_new_habit").performClick()
-        waitForTag("habit_name_field")
-        compose.onNodeWithTag("habit_name_field").performTextReplacement(name)
-        if (typeLabel != null) compose.onNodeWithText(typeLabel).performClick()
-        if (target != null) {
-            waitForTag("habit_target_field")
-            compose.onNodeWithTag("habit_target_field").performTextReplacement(target)
-        }
+    }
+
+    private fun saveHabit() {
         compose.onNodeWithTag("habit_save").performClick()
-        waitForTag("habit_card_$name")
+        compose.waitUntil(10_000) { compose.onAllNodes(hasTestTag("habit_save")).fetchSemanticsNodes().isEmpty() }
+        waitForTag(HomeTestTags.SCREEN)
+    }
+
+    private fun suggestion(id: String) {
+        openHabitCreation()
+        waitForTag("suggestion_$id")
+        compose.onNodeWithTag("suggestion_$id").performScrollTo().performClick()
+        waitForTag("habit_save")
+        saveHabit()
     }
 
     @Test
     fun captureScreens() {
         Assume.assumeTrue(outDir != null)
-        waitForTag("dashboard_fab")
-        shot("01_today_empty")
-        createHabit("Read 20 pages")
-        createHabit("Drink water", "Amount", "2000")
-        createHabit("Meditate", "Duration", "10")
-        createHabit("No smoking", "Quit")
+        waitForTag(HomeTestTags.SCREEN)
+        shot("01_hoje_vazio")
+        openHabitCreation()
+        waitForTag("habit_custom")
+        shot("02_criar_sugestoes")
+        compose.onNodeWithTag("habit_custom").performClick()
+        waitForTag("type_count")
+        shot("03_tipo")
+        compose.onNodeWithTag("type_count").performClick()
+        waitForTag("habit_name_field")
+        compose.onNodeWithTag("habit_name_field").performTextReplacement("Ler 20 páginas")
+        shot("04_editor")
+        saveHabit()
+        suggestion("water")
+        suggestion("meditate")
+        suggestion("exercise")
         compose.onNodeWithTag("dashboard_fab").performClick()
+        shot("05_fab")
         compose.onNodeWithTag("fab_new_task").performClick()
-        waitForTag("task_title_field")
-        compose.onNodeWithTag("task_title_field").performTextReplacement("Pay electricity bill")
-        compose.onNodeWithText("High").performClick()
-        compose.onNodeWithTag("task_save").performClick()
-        waitForTag("task_row_Pay electricity bill")
-        compose.onNodeWithTag("habit_card_Read 20 pages").let { }
-        shot("02_today_filled")
-        compose.onNodeWithTag("habit_card_Drink water").performClick()
-        waitForText("Current streak")
-        shot("03_habit_detail")
-        compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
-        compose.onNodeWithTag(navItemTestTag(TopLevelDestination.HABITS)).performClick()
-        waitForText("Read 20 pages")
-        shot("04_habits")
+        waitForTag("quick_task_title")
+        compose.onNodeWithTag("quick_task_title").performTextReplacement("Pagar conta de luz")
+        shot("06_tarefa_rapida")
+        compose.onNodeWithTag("quick_task_send").performClick()
+        waitForTag("task_row_Pagar conta de luz")
+        shot("07_hoje")
+        compose.onNodeWithTag("home_menu").performClick()
+        waitForTag("drawer_all_habits")
+        shot("08_menu")
+        back()
+        compose.onNodeWithTag("habit_card_Ler 20 páginas").performClick()
+        waitForTag("detail_plus")
+        compose.onNodeWithTag("detail_plus").performClick()
+        shot("09_detalhe")
+        compose.onNodeWithTag("detail_tab_STATS").performClick()
+        shot("10_detalhe_estatisticas")
+        back()
+        waitForTag("home_reports")
+        compose.onNodeWithTag("home_reports").performClick()
+        compose.waitForIdle()
+        shot("11_relatorios")
+        back()
+        waitForTag("home_timer")
+        compose.onNodeWithTag("home_timer").performClick()
+        waitForTag(TimerTestTags.START)
+        shot("12_timer")
+        back()
+        waitForTag(HomeTestTags.SCREEN)
         compose.onNodeWithTag(navItemTestTag(TopLevelDestination.CALENDAR)).performClick()
-        waitForText("Month")
-        shot("05_calendar")
-        compose.onNodeWithTag(navItemTestTag(TopLevelDestination.TASKS)).performClick()
-        waitForTag("task_row_Pay electricity bill")
-        shot("06_tasks")
+        compose.waitForIdle()
+        shot("13_calendario")
         compose.onNodeWithTag(navItemTestTag(TopLevelDestination.JOURNAL)).performClick()
         waitForTag("journal_fab")
-        shot("07_journal")
-        compose.onNodeWithTag("journal_fab").performClick()
-        waitForTag("journal_title_field")
-        shot("08_journal_editor")
-    }
-
-    @Test
-    @Config(qualifiers = "+night")
-    fun captureDarkAndSettings() {
-        Assume.assumeTrue(outDir != null)
-        waitForTag("dashboard_fab")
-        createHabit("Drink water", "Amount", "2000")
-        createHabit("Stretch")
-        shot("09_today_dark")
-        compose.onNode(androidx.compose.ui.test.hasContentDescription("Open settings")).performClick()
-        waitForText("Theme")
-        shot("10_settings_dark")
+        shot("14_diario")
+        compose.onNodeWithTag(navItemTestTag(TopLevelDestination.SETTINGS)).performClick()
+        waitForTag("settings_link_archived")
+        shot("15_ajustes")
     }
 }
